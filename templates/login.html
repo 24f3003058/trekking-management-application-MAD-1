@@ -3,33 +3,55 @@
 {% block title%}
 TrekMate-Login Page
 {%endblock%}
+{% block navbar%}
+    <a class="navbar-brand" href="#">TrekMate</a>    
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
+                <a class="nav-link" href="#">Register</a>
+            </div>
+        </div>
+{%endblock%}
 
 {% block content%}
-<h2>Login</h2>
-<form method="POST" class="mt-5">
-    <div class="mb-4 mt-4">
-    <label for="username" class="form-label">Username:
-        <input type="text" name="username" id="username" class="form-control"/>
-    </label>
-    </div>
-    <div class="mb-4">
-    <label for="password" class="form-label">Password:
-        <input type="password"  name="password" id="password" class="form-control">
-    </label>
-    </div>
+<div class="container mt-5">
     
-    <div class="mt-3 mb-5">
-        <input type="submit" value="Login" class="btn btn-success">
-    </div>
-    <p>Don't have account? <a href="register.html">Register</a></p>
-    
-</form>
+    <h2 class="text-center mb-4">Login</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <form method="POST" class="mt-5">
+                    <div class="mb-4 mt-4">
+                    <label for="username" class="form-label">Username:
+                        <input type="text" name="username" id="username" class="form-control" required>
+                    </label>
+                    </div>
+                    <div class="mb-4">
+                    <label for="password" class="form-label">Password:
+                        <input type="password"  name="password" id="password" class="form-control" required>
+                    </label>
+                    </div>
+                    
+                    <div class="mt-3 mb-5">
+                        <input type="submit" value="Login" class="btn btn-success">
+                    </div>
+                    <p>Don't have account? <a href="{{url_for('register')}}">Register</a></p>
+                    
+                </form> 
+            </div>   
+        </div>
+</div>
 {%endblock%}
 
 {% block style%}
 <style>
+    nav{
+        width: 100%;
+        padding:0px;
+        margin:0px
+    }
     body{
-        margin-inline: 500px 500px;
+        margin:0px;
+        padding:0px;
     }
     form{
         display: flex;

@@ -3,38 +3,64 @@
 {% block title %}
 TrekMate-Registeration Form  
 {%endblock%}
-
+{%block navbar%}
+   <a class="navbar-brand" href="#">TrekMate</a>
+        
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
+                <a class="nav-link" href="#">Login</a>
+                <a class="nav-link" href="#">Register</a>
+                
+            </div>
+        </div>
+{%endblock%}
 {% block content%}
-<h2>Registeration Form</h2>
-<form>
-    <div class="mb-3 mt-4">
-        <label for="name" class="form-label">Full Name:
-            <input type="text" class="form-control" name="name" placeholder="Full Name"/>
-        </label>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Registeration Form</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            
+            <form method="POST" >
+                <div>
+                <div class="mb-3 mt-4">
+                    <label for="name" class="form-label">Full Name:
+                        <input type="text" class="form-control" name="name" placeholder="Full Name" required/>
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username:
+                        <input type="text" name="username" id="username" class="form-control" required placeholder="Username">
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <label for="inputEmail4" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="inputEmail4" required placeholder="abc@gmail.com">
+                </div>
+                <div class="mb-3">
+                    <label for="inputPassword4" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="inputPassword4" required>
+                </div>
+                <div class="mt-3 mb-5">
+                    <input type="submit" value="Create Account" class="btn btn-success" required >
+                </div>
+                <p>Already have an account? <a href="{{url_for('login')}}">login</a></p>
+            </form>
+        </div>
     </div>
-    <div class="mb-3">
-        <label for="username" class="form-label">Username:
-            <input type="text" name="username" id="username" class="form-control" placeholder="Username"/>
-        </label>
-    </div>
-    <div class="mb-3">
-        <label for="inputEmail4" class="form-label">Email</label>
-        <input type="email" class="form-control" id="inputEmail4" placeholder="abc@gmail.com">
-    </div>
-    <div class="mb-3">
-        <label for="inputPassword4" class="form-label">Password</label>
-        <input type="password" class="form-control" id="inputPassword4">
-    </div>
-    <div class="mt-3 mb-5">
-        <input type="submit" value="Create Account" class="btn btn-success"/>
-    </div>
-    <p>Already have an account? <a href="login.html">Login</a></p>
-</form>
+</div>
 {%endblock%}
 {% block style%}
 <style>
     body{
-        margin-inline: 500px 500px;
+        margin: 0px;
+        padding:0px;
+    }
+    nav{
+        padding:0;
+        margin:0;
+        width: 100%;
     }
     form{
         display: flex;
@@ -45,7 +71,7 @@ TrekMate-Registeration Form
         padding:5px;
     }
     h2{
-        margin-top:64px;
+        margin-top:45px;
         text-align: center;
     }
 </style>
