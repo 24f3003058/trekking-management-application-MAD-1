@@ -4,17 +4,20 @@ from flask_sqlalchemy import SQLAlchemy
 db=SQLAlchemy(app)
 
 class User(db.Model):
+    __tablename__='users'
     id=db.Column(db.Integer, primary_key=True)
     username=db.Column(db.String(32), unique=True, nullable=False)
     name=db.Column(db.String(100),nullable=False)
-    passhash=db.Column(db.String(600),nullable=False)
+    password=db.Column(db.String(100),nullable=False)
     email=db.Column(db.String(100),nullable=False)
     role=db.Column(db.String(50),nullable=False,default='user')
     created_date=db.Column(db.DateTime)
+    is_blacklisted = db.Column(db.Boolean, default=False)
     bookings=db.relationship('Booking',backref='user' ,lazy=True ,foreign_keys='Booking.user_id')
     assigned_treks=db.relationship('Trek',backref='assigned_staff',lazy=True,foreign_keys='Trek.assigned_staff_id')
 
 class Trek(db.Model):
+    __tablename__='treks'
     id=db.Column(db.Integer,primary_key=True)
     name=db.Column(db.String(120),nullable=False)
     location=db.Column(db.String(300),nullable=False)
@@ -32,8 +35,12 @@ class Trek(db.Model):
     bookings=db.relationship('Booking',backref='trek',lazy=True,foreign_keys='Booking.trek_id')
 
 class Booking(db.Model):
+    __tablename__='bookings'
     id=db.Column(db.Integer,primary_key=True)
     user_id=db.Column(db.Integer,db.ForeignKey('users.id'),nullable=False)
     trek_id=db.Column(db.Integer,db.ForeignKey('treks.id'),nullable=False)
     booking_date=db.Column(db.DateTime)
     status=db.Column(db.String(50),nullable=False ,default='Booked')
+
+with app.app_context():
+    db.create_all()
