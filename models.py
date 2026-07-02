@@ -30,7 +30,7 @@ class Trek(db.Model):
     start_date=db.Column(db.Date,nullable=False)
     end_date=db.Column(db.Date,nullable=False)
     description=db.Column(db.Text,nullable=True,default="No description added")
-    total_cost=db.Column(db.Float,nullable=False,default=0.0)
+    price=db.Column(db.Float,nullable=False,default=0.0)
     created_at=db.Column(db.DateTime)
     bookings=db.relationship('Booking',backref='trek',lazy=True,foreign_keys='Booking.trek_id')
 
@@ -44,3 +44,8 @@ class Booking(db.Model):
 
 with app.app_context():
     db.create_all()
+    admin=User.query.filter_by(role='admin').first()
+    if not admin:
+        admin=User(username='admin',password='admin',name="admin",email='admin@gmail.com',role='admin')
+        db.session.add(admin)
+        db.session.commit()

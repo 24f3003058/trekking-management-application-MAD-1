@@ -1,0 +1,115 @@
+{% extends 'base.html'%}
+{% block title%}
+Add Trek
+{%endblock%}
+
+{% block navbar%}
+   <div>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="#"><b>TrekMate</b></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="{{url_for('index')}}">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Treks</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Staff</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Users</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Bookings</a>
+        </li>
+      </ul>
+      <form class="d-flex" role="search">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+</div>
+{%endblock%}
+
+
+{%block content%}
+<div >
+    <h2 class="title">Add New Trek</h2>
+    <div>
+      <form method="POST" >
+        <div class="col-md-6">
+            <label for ='name' class="form-label">Trek Name:</label>
+            <input type="text" class="form-control" id="name" name="name">
+        </div>
+        <div class="col-md-4">
+            <label for ='price' class="form-label">Price:</label>
+            <input type="number" class="form-control" id="price" name="price">
+        </div>
+        <div class="col-md-6">
+            <label for ='location' class="form-label">Location:</label>
+            <input type="text" class="form-control" id="location" name="location">
+        </div>
+        <div class="col-md-3 mt-4">
+            <label for="difficulty" class="form-label">Level:</label>
+            <div class="form-floating" >
+                <select class="form-select" name="difficulty" id="floatingSelect" aria-label="Floating label select example">
+                    <option selected>Choose difficulty</option>
+                    <option value="1">Easy</option>
+                    <option value="2">Moderate</option>
+                    <option value="3">Hard</option>
+                </select>  
+            </div>
+        </div>
+        <div class="col-md-3 mt-2">
+            <label for="duration" class="form-label">Duration:</label>
+            <input type="number" class="form-control" id="duration" name="duration" >
+        </div>
+        <div class="col-md-3 mt-2">
+            <label for="start_date" class="form-label">Start Date:</label>
+            <input type="date" class="form-control" id="start_date" name="start_date" >
+        </div>
+        <div class="col-md-3 mt-2">
+            <label for="end_date" class="form-label">End Date:</label>
+            <input type="date" class="form-control" id="end_date" name="end_date">
+        </div>  
+        <div class="col-md-3 mt-2">
+            <label for="total_slots" class="form-label ">Total Slots:</label>
+            <input type="number" class="form-control" id="total_slots" name="total_slots">
+        </div>
+        <div class="col-md-6 mt-2">
+            <label for="assigned_staff_id" class="form-label">Assign staff:</label>
+            <select class="form-select" id="assigned_staff_id" name="assigned_staff_id">Unassigned
+                <option value="">Unassigned</option>
+                {%for i in staff_list%}
+                <option value="{{i.id}}"
+                    {%if trek and trek.assigned_staff_id==s.id%}selected{% endif %}>
+                    {{i.name}}
+
+                </option>
+                {%endfor%}
+            </select>
+        </div>
+        <div class="col-10 mt-3 mb-5">
+            <label for="description" class="form-label" >Description:</label>
+            <input type="text" class="form-control" name="description"> 
+        </div>
+        <input type="submit" value="Add Trek" class="btn btn-success">
+        
+      </form>  
+    </div>
+</div>
+{%endblock%}
+{% block style%}
+<style>
+    .title{
+        color:green;
+        margin-top: 8px;
+    } 
+    
+</style>
+
+{%endblock%}
