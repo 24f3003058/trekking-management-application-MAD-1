@@ -43,20 +43,20 @@ Add Trek
       <form method="POST" >
         <div class="col-md-6">
             <label for ='name' class="form-label">Trek Name:</label>
-            <input type="text" class="form-control" id="name" name="name">
+            <input type="text" class="form-control" id="name" name="name" required>
         </div>
         <div class="col-md-4">
             <label for ='price' class="form-label">Price:</label>
-            <input type="number" class="form-control" id="price" name="price">
+            <input type="number" class="form-control" id="price" name="price" required>
         </div>
         <div class="col-md-6">
             <label for ='location' class="form-label">Location:</label>
-            <input type="text" class="form-control" id="location" name="location">
+            <input type="text" class="form-control" id="location" name="location" required>
         </div>
         <div class="col-md-3 mt-4">
             <label for="difficulty" class="form-label">Level:</label>
             <div class="form-floating" >
-                <select class="form-select" name="difficulty" id="floatingSelect" aria-label="Floating label select example">
+                <select class="form-select" name="difficulty" id="floatingSelect" aria-label="Floating label select example" required>
                     <option selected>Choose difficulty</option>
                     <option value="1">Easy</option>
                     <option value="2">Moderate</option>
@@ -66,23 +66,23 @@ Add Trek
         </div>
         <div class="col-md-3 mt-2">
             <label for="duration" class="form-label">Duration:</label>
-            <input type="number" class="form-control" id="duration" name="duration" >
+            <input type="number" class="form-control" id="duration" name="duration"required >
         </div>
         <div class="col-md-3 mt-2">
             <label for="start_date" class="form-label">Start Date:</label>
-            <input type="date" class="form-control" id="start_date" name="start_date" >
+            <input type="date" class="form-control" id="start_date" name="start_date" required>
         </div>
         <div class="col-md-3 mt-2">
             <label for="end_date" class="form-label">End Date:</label>
-            <input type="date" class="form-control" id="end_date" name="end_date">
+            <input type="date" class="form-control" id="end_date" name="end_date" required>
         </div>  
         <div class="col-md-3 mt-2">
             <label for="total_slots" class="form-label ">Total Slots:</label>
-            <input type="number" class="form-control" id="total_slots" name="total_slots">
+            <input type="number" class="form-control" id="total_slots" name="total_slots" required>
         </div>
         <div class="col-md-6 mt-2">
             <label for="assigned_staff_id" class="form-label">Assign staff:</label>
-            <select class="form-select" id="assigned_staff_id" name="assigned_staff_id">Unassigned
+            <select class="form-select" id="assigned_staff_id" name="assigned_staff_id" required>Unassigned
                 <option value="">Unassigned</option>
                 {%for i in staff_list%}
                 <option value="{{i.id}}"

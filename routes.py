@@ -132,7 +132,7 @@ def admin_manage_trek():
     staff_list=User.query.filter_by(role='staff',is_blacklisted=False).all()
     return render_template('admin/admin_manage_trek.html',treks=treks,staff_list=staff_list,status_filter=status_filter,search=search)
 
-@app.route('/admin/admin_add_trek',methods=['GET','POST'])
+@app.route('/admin/admin_manage_trek/add',methods=['GET','POST'])
 def admin_add_trek():
     if 'user_id' not in session:
         flash('Please login to continue')
@@ -180,5 +180,152 @@ def admin_add_trek():
         db.session.commit()
         return redirect(url_for('admin_manage_trek'))
     return render_template('admin/admin_add_trek.html',staff_list=staff_list,trek=None)
+
+@app.route('/admin/admin_manage_trek/<int:trek_id>/edit',methods=['GET','POST'])
+def admin_edit_trek():
+    if 'user_id' not in session:
+        flash('Please login to continue')
+        return redirect(url_for('login'))
+    if session.get('role')!='admin':
+        flash("Access denied! You can't access this web")
+        return redirect(url_for('login'))
+    trek=Trek.query.filter_by(id=trek_id).first()
+    staff_list=User.query.filter_by(role="staff",is_blacklisted=False).all()
+    if request.method=='POST':
+        trek.name=request.form.get('name',trek.name).strip()
+        trek.location=request.form.get('location',trek.location).strip()
+        trek.difficulty=request.fron.get('difficulty',trek.difficulty)
+        trek.duration=int(request.form.get('duration',trek.duration))
+        new_total=int(request.form.get('total_slots',trek.total_slots))
+        difference=new_total-trek.total_slots
+        trek.total_slots=new_total
+        trek.available_slots=max(0,trek.available_slots+difference)
+        trek.start=datetime.strptime(request.form.get('start_date'),'%Y-%m-%d').date()
+        trek.end_date=datetime.strptime(request.form.get('end_date'),'%Y-%m-%d').date()
+        trek.description=request.form.get('description')
+        price_str=request.form.get('price',str(trek.price))
+        trek.price=float(price_str) if price_str else trek.price
+        assigned_staff_id=request.form.get('assigned_staff_id') or None
+        trek.assigned_staff_id=int(assigned_staff_id) if assigned_staff_id else None
+        trek.status=request.form.get('status',trek.status)
+        db.session.commit()
+        return redirect(url_for('admin_manage_trek'))
+    return render_template('admin/admin_add_trek.html',staff_list=staff_list,trek=trek)
+
+@app.route('/admin/admin_manage_trek/<int:trek_id>/delete',methods=['POST'])
+def admin_delete_trek(trek_id):
+    if 'user_id' not in session:
+        flash('Please login to continue')
+        return redirect(url_for('login'))
+    if session.get('role')!=admin:
+        flash("Access denied! You can't access this webpage")
+        return redirect(url_for('login'))
+    trek=Trek.query.filter_by(id=trek_id).first()
+    Booking.query.filter_by(trek_id=trek_id).delete(synchronize_session=False)
+    db.session.delete(trek)
+    db.session.commit()
+    return redirect(url_for('admin_manage_trek'))
+
+@app.route('/admin/admin_manage_trek/<int:trek_id>/status',methods=['POST'])
+def admin_update_trek_status(trek_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    if session.get('role')!='admin':
+        return redirect(url_for('login'))
+    trek=trek.query.filter_by(id=trek_id).first()
+    new_status=request.form.get('status')
+    valid=['Pending','Approved',"Completed",'Closed','Open']
+    if new_status in valid:
+        trek.status=new_status
+        if new_status=='Completed':
+            for b in trek.bookings:
+                if b.status=='Booked':
+                    b.status='Completed'    
+        db.session.commit()
+    else:
+        flash('Invalid status','danger')
+    return redirect(url_for('admin_manage_trek'))
+
+@app.route('/admin/manage_staff')
+def manage_staff():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    if session.get('role')!='admin':
+        flash("Access denied!")
+        return redirect(url_for('login'))
+    search=request.args.get('search')
+    query=User.query.filter_by(role='staff')
+    if search:
+        query=query.filter(User.name.ilike(f'%{search}%'))
+    staff_list=query.order_by(User.name).all()
+    treks=Trek.query.filter(Trek.status.in_(['Pending',"Approved","Open"])).order_by(Trek.name).all()
+    return render_template("admin/manage_staff.html",staff_list=staff_list, treks=treks,search=search)
+
+@app.route('/admin/manage_staff/add_staff',methods=['GET','POST'])
+def add_staff():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    if session['role']!='admin':
+        flash("Access Denied!")
+        return redirect(url_for('login'))
+    if request.method=='POST':
+        username=request.form.get('username')
+        email=request.form.get('email')
+        password=request.form.get('password')
+        name=request.form.get('name')
+        
+        staff=User(username=username,email=email,name=name,role='staff',password=password)
+        db.session.add(staff)
+        db.session.commit()
+        flash("Staff member added successfully!",'success')
+        return redirect(url_for('manage_staff'))
+    return render_template('admin/staff_form.html')
+
+@app.route('/admin/manage_staff/<int:staff_id>/delete',methods=['POST'])
+def admin_delete_staff(staff_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    if session['role']!='admin':
+        return redirect(url_for('login'))
+    staff=User.query.filter_by(id=staff_id,role='staff').first()
+    Trek.query.filter_by(assigned_staff_id=staff_id).update(
+        {'assigned_staff_id':None},synchronize_session=False
+    )
+    db.session.delete(staff)
+    db.session.commit()
+    flash('Staff member removed successfully!','success')
+    return redirect(url_for('manage_staff'))
+
+@app.route('/admin/manage_staff/<int:staff_id>/assign',methods=['POST'])
+def admin_assign_staff(staff_id):
+    if 'user_id' not in session:
+        return redirect('login')
+    if session['role']!='staff':
+        return redirect('login')
+    staff=User.query.filter_by(id=staff_id,role='staff').first()
+    trek_id=request.form.get('trek_id')
+    if not trek_id:
+        flash('Please select a trek.','danger')
+        return redirect(url_for('manage_staff'))
+    trek=Trek.query.filter_by(id=int(trek_id)).first()
+    trek.assigned_staff_id=staff_id
+    db.session.commit()
+    flash({staff.name}, " assigned to trek ",{trek.name}, ".","success")
+    return redirect(url_for('manage_staff'))
+
+
+@app.route('/admin/manage_staff/<int:staff_id>/blacklist')
+def admin_blacklist_staff(staff_id):
+    if 'user_id' not in session:
+        return redirect('login')
+    if session['role']!='admin':
+        flash('Access denied! ONly admin can see this page.')
+        return render_template('login.html')
+    staff=User.query.filter_by(id=staff_id,role='staff').first()
+    staff.is_blacklisted=not staff.is_blacklisted
+    db.session.commit()
+    status='blacklisted' if staff.is_blacklisted else 'activated'
+    flash('staff member added successfully!','success')
+    return redirect(url_for(''))
 
 
