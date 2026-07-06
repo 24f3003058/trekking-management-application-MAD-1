@@ -36,8 +36,72 @@ All bookings
 {%endblock%}
 {%block content%}
 <h2>All Bookings</h2>
-<div>
-
+<div class="filter-section">
+    <form method="GET" class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label">Search :</label>
+            <select>
+                <option value="">All</option>
+                {%for s in ['Booked','Cancelled','Completed'] %}
+                <option value="{{s}}" {% if status_filter == s %}selected{% endif %}>{{s}}</option>
+                {%endfor%}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-success">Apply</button>
+        </div>
+    </form>
 </div>
+
+<div class="row g-2 mb-3">
+    <span >Booked: {{ bookings |selectattr('status','equalto','Booked') | list | length}}</span>
+    <span>Cancelled: {{bookings |selectattr('status','equalto','Cancelled') | list |length}}</span>
+    <span>Completed: {{bookings |selectattr('status','equalto','Completed') |list |length}}</span>
+</div>
+
+<div>
+    <table class="table table-hover align-center ">
+        <thead>
+            <tr>
+                <th>#ID</th>
+                <th>User</th>
+                <th>Trek</th>
+                <th>Location</th>
+                <th>Trek Dates</th>
+                <th>Booked On</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%for b in bookings%}
+            <tr>
+                <td>{{b.id}}</td>
+                <td>{{b.user.name}}</td>
+                <td>{{b.trek.name}}</td>
+                <td>{{b.trek.location}}</td>
+                <td>{{b.trek.start_date.strftime('%d %b')}} 
+                    - {{b.trek.end_date.strftime('%d %b %Y')}}
+                </td>
+                <td>{{b.booking_date.strftime('%d %b %Y %H:%M')}}</td>
+                <td>
+                    <span class="
+                        {% if b.status=='Booked' %}
+                        {% elif b.status=='Cancelled' %}
+                        {%endif %}">
+                        {{b.status}}
+                    </span>
+                </td>
+
+            </tr>
+            {%endfor%}
+        </tbody>
+
+    </table>
+</div>
+{%if not bookings %}
+<div class="text-center mt-5">
+    No bookings found.
+</div >
+{%endif%}
 {%endblock%}
 

@@ -62,7 +62,6 @@
                 <th scope="col">Name</th>
                 <th scope="col">Username</th>
                 <th scope="col">Email</th>
-                <th scope="col">Phone</th>
                 <th scope="col">Assigned Treks</th>
                 <th scope="col">Status</th>
                 <th scope="col">Actions</th>
@@ -76,7 +75,6 @@
                 <td>{{staff.name}}</td>
                 <td>{{staff.username}}</td>
                 <td>{{staff.email}}</td>
-                <td>{{staff.phone}}</td>
                 <td>{% set my_treks=staff.assigned_treks %}
                     {%if my_treks%}
                         {%for t in my_treks%}
@@ -120,12 +118,8 @@
 
                 </td>
             </tr>
-
             {%endfor%}
         </tbody>
     </table>
 </div>
-
-
-
 {%endblock%}

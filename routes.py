@@ -72,7 +72,7 @@ def logout():
 @app.route('/user/dashboard')
 def user_dashboard():
     if 'user_id' in session:
-        return render_template({{url_for('user_dashboard')}})
+        return render_template('index.html')
     else:
         flash('Please login to continue')
         return redirect(url_for('login'))
@@ -265,7 +265,7 @@ def manage_staff():
 def add_staff():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    if session['role']!='admin':
+    if session.get('role')!='admin':
         flash("Access Denied!")
         return redirect(url_for('login'))
     if request.method=='POST':
@@ -285,7 +285,7 @@ def add_staff():
 def admin_delete_staff(staff_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    if session['role']!='admin':
+    if session.get('role')!='admin':
         return redirect(url_for('login'))
     staff=User.query.filter_by(id=staff_id,role='staff').first()
     Trek.query.filter_by(assigned_staff_id=staff_id).update(
@@ -300,7 +300,7 @@ def admin_delete_staff(staff_id):
 def admin_assign_staff(staff_id):
     if 'user_id' not in session:
         return redirect('login')
-    if session['role']!='staff':
+    if session.get('role')!='admin':
         return redirect('login')
     staff=User.query.filter_by(id=staff_id,role='staff').first()
     trek_id=request.form.get('trek_id')
@@ -318,7 +318,7 @@ def admin_assign_staff(staff_id):
 def admin_blacklist_staff(staff_id):
     if 'user_id' not in session:
         return redirect('login')
-    if session['role']!='admin':
+    if session.get('role')!='admin':
         flash('Access denied! ONly admin can see this page.')
         return render_template('login.html')
     staff=User.query.filter_by(id=staff_id,role='staff').first()
@@ -328,4 +328,28 @@ def admin_blacklist_staff(staff_id):
     flash('staff member added successfully!','success')
     return redirect(url_for(''))
 
+@app.route('/admin/bookings')
+def admin_bookings():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    if session.get('role')!='admin':
+        return redirect(url_for('login'))
+    status_filter=request.args.get('status','')
+    query=Booking.query
+    if status_filter:
+        query=query.filter_by(status=status_filter)
+    bookings=query.order_by(Booking.booking_date.desc()).all()
+    return render_template('admin/admin_bookings.html' ,bookings=bookings,status_filter=status_filter)
 
+
+@app.route('/user/bookings')
+def user_booking():
+    if 'user_id' not in session:
+        flash("Please login to continue.",'danger')
+        return redirect(url_for('login'))
+    if session.get('role')!='user':
+        flash("Only users can access this website!",'danger')
+        return redirect(url_for('login'))
+    user_id=session['user_id']
+    bookings=(Booking.query.filter_by(user_id=user_id).all())
+    return render_template('user/user_booking.html',bookings=bookings)
