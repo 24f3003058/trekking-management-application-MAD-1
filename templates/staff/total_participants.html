@@ -1,0 +1,46 @@
+{% extends 'base.html'%}
+{%block title%}
+Participants Details
+{%endblock%}
+
+{%block content%}
+<h2>Details of {{trek.name}}</h2>
+<div class="d-flex gap-3 mb-2 ">
+    <span>Booked Trek: {{booked_count}}</span>
+    <span>Cancelled Trek: {{cancelled_count}}</span>
+    <span>Completed trek: {{completed_count}}</span>
+</div>
+
+<table class="table table-hover align-middle mb-0">
+  <thead>
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Name</th>
+      <th scope="col">Username</th>
+      <th scope="col">Email</th>
+      <th scope="col">Booking Date</th>
+      <th scope="col">Status</th>
+      
+    </tr>
+  </thead>
+  <tbody>
+    {% for b in bookings%}
+    <tr>
+        <td>{{b.id}}</td>
+        <td>{{b.user.name}}</td>
+        <td>{{b.user.username}}</td>
+        <td>{{b.user.email}}</td>
+        <td>{{b.booking_date.strftime('%d %b %Y')}}</td>
+        <td>{{b.status}}</td>
+    </tr>
+    {%endfor%}
+  </tbody>
+</table>
+
+{% if not bookings%}
+    <div class="text-center">
+        <p>No one registered for this trek.</p>
+
+    </div>
+{%endif%}
+{%endblock%}

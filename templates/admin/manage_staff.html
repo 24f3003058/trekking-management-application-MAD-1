@@ -69,7 +69,7 @@
             </tr>
         </thead>
         <tbody>
-            {%for staff in staff_list%}
+            {%for staff in myusers%}
             <tr class="{% if staff.is_backlisted %}table-danger{%endif%}">
                 <td>{{staff.id}}</td>
                 <td>{{staff.name}}</td>

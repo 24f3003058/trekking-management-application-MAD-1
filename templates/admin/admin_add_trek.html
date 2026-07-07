@@ -77,7 +77,7 @@ Add Trek
             <label for="assigned_staff_id" class="form-label">Assign staff:</label>
             <select class="form-select" id="assigned_staff_id" name="assigned_staff_id" required>Unassigned
                 <option value="">Unassigned</option>
-                {%for i in staff_list%}
+                {%for i in myusers%}
                 <option value="{{i.id}}"
                     {%if trek and trek.assigned_staff_id==i.id%}selected{% endif %}>
                     {{i.name}}

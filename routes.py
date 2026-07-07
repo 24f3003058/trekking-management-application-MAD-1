@@ -129,8 +129,8 @@ def admin_manage_trek():
     if search:
         query=query.filter_by(Trek.name.ilike(f'%{search}%'))
     treks=query.order_by(Trek.created_at.desc()).all()
-    staff_list=User.query.filter_by(role='staff',is_blacklisted=False).all()
-    return render_template('admin/admin_manage_trek.html',treks=treks,staff_list=staff_list,status_filter=status_filter,search=search)
+    myusers=User.query.filter_by(role='staff',is_blacklisted=False).all()
+    return render_template('admin/admin_manage_trek.html',treks=treks,myusers=myusers,status_filter=status_filter,search=search)
 
 @app.route('/admin/admin_manage_trek/add',methods=['GET','POST'])
 def admin_add_trek():
@@ -141,7 +141,7 @@ def admin_add_trek():
         flash("Access denied! You can't access this web")
         return redirect(url_for('login'))
 
-    staff_list=User.query.filter_by(role="staff",is_blacklisted=False).all()
+    myusers=User.query.filter_by(role="staff",is_blacklisted=False).all()
     if request.method == "POST":
         name=request.form.get('name')
         location=request.form.get('location')
@@ -156,7 +156,7 @@ def admin_add_trek():
         
         if start_date>=end_date:
             flash("Enter correct end date,it should be after start date!")
-            return render_template('admin/admin_add_trek',staff_list=staff_list,trek=None)
+            return render_template('admin/admin_add_trek',myusers=myusers,trek=None)
         slots= int(total_slots)
         choosen_status=request.form.get('status',"Open")
         valid_statuses=['Pending',"Approved",'Open',"Completed","Closed"]
@@ -179,7 +179,7 @@ def admin_add_trek():
         db.session.add(trek)
         db.session.commit()
         return redirect(url_for('admin_manage_trek'))
-    return render_template('admin/admin_add_trek.html',staff_list=staff_list,trek=None)
+    return render_template('admin/admin_add_trek.html',myusers=myusers,trek=None)
 
 @app.route('/admin/admin_manage_trek/<int:trek_id>/edit',methods=['GET','POST'])
 def admin_edit_trek(trek_id):
@@ -190,7 +190,7 @@ def admin_edit_trek(trek_id):
         flash("Access denied! You can't access this web")
         return redirect(url_for('login'))
     trek=Trek.query.filter_by(id=trek_id).first()
-    staff_list=User.query.filter_by(role="staff",is_blacklisted=False).all()
+    myusers=User.query.filter_by(role="staff",is_blacklisted=False).all()
     if request.method=='POST':
         trek.name=request.form.get('name',trek.name).strip()
         trek.location=request.form.get('location',trek.location).strip()
@@ -210,7 +210,7 @@ def admin_edit_trek(trek_id):
         trek.status=request.form.get('status',trek.status)
         db.session.commit()
         return redirect(url_for('admin_manage_trek'))
-    return render_template('admin/admin_add_trek.html',staff_list=staff_list,trek=trek)
+    return render_template('admin/admin_add_trek.html',myusers=myusers,trek=trek)
 
 @app.route('/admin/admin_manage_trek/<int:trek_id>/delete',methods=['POST'])
 def admin_delete_trek(trek_id):
@@ -257,9 +257,9 @@ def manage_staff():
     query=User.query.filter_by(role='staff')
     if search:
         query=query.filter(User.name.ilike(f'%{search}%'))
-    staff_list=query.order_by(User.name).all()
+    myusers=query.order_by(User.name).all()
     treks=Trek.query.filter(Trek.status.in_(['Pending',"Approved","Open"])).order_by(Trek.name).all()
-    return render_template("admin/manage_staff.html",staff_list=staff_list, treks=treks,search=search)
+    return render_template("admin/manage_staff.html",myusers=myusers, treks=treks,search=search)
 
 @app.route('/admin/manage_staff/add_staff',methods=['GET','POST'])
 def add_staff():
@@ -382,3 +382,85 @@ def user_cancel_booking(booking_id):
         db.session.commit()
         flash("Booking cancelled!",'success')
     return redirect(url_for('user_booking'))
+
+
+
+@app.route('/staff/staff_dashboard')
+def staff_dashboard():
+    if 'user_id' not in session:
+        flash('Please login to continue')
+        return redirect(url_for('login'))
+    if session.get('role')!='staff':
+        flash('Access denied! Please login to continue')
+        return redirect(url_for('login'))
+    user_id=session['user_id']
+    assigned_treks=Trek.query.filter_by(assigned_staff_id=user_id).all()
+    return render_template('staff/staff_dashboard.html',assigned_treks=assigned_treks)
+
+@app.route('/staff/trek/<int:trek_id>')
+def staff_trek_info(trek_id):
+    if 'user_id' not in session:
+        flash('Please login to continue')
+        return redirect(url_for('login'))
+    if session.get('role')!='staff':
+        flash('Access denied! Please login to continue')
+        return redirect(url_for('login'))
+    trek=Trek.query.filter_by(id=trek_id).first()
+    if trek.assigned_staff_id!=session['user_id']:
+        flash('Trek is not assigned for you','danger')
+        return redirect(url_for('staff_dashboard'))
+    open_bookings= [b for b in trek.bookings if b.status =='Booked']
+    return render_template('staff/staff_trek_detail.html',trek=trek ,open_bookings=open_bookings)
+
+@app.route('/staff/trek/<int:trek_id>/update',methods=['POST'])
+def staff_update_trek(trek_id):
+    if 'user_id' not in session:
+        flash('Please login to continue')
+        return redirect(url_for('login'))
+    if session.get('role')!='staff':
+        flash('Access denied! Please login to continue')
+        return redirect(url_for('login'))
+    trek=Trek.query.filter_by(id=trek_id).first()
+    if trek.assigned_staff_id != session['user_id']:
+        return redirect(url_for("staff_dashboard"))
+    new_available_slots=request.form.get('available_slots')
+    new_status=request.form.get('status')
+    if new_available_slots:
+        try:
+            slots=int(new_available_slots)
+            if 0<=slots<=trek.total_slots:
+                trek.available_slots=slots
+            else:
+                flash(f"Slots must be between 0 and {trek.total_slots}",'danger')
+                return redirect(url_for('staff_trek_info',trek_id=trek.id))
+        except ValueError:
+            flash('Invalid slot count.','danger')
+            return redirect(url_for('staff_trek_info',trek_id=trek.id))
+    
+    if new_status in ("Open","Closed" ,"Completed"):
+        trek.status=new_status
+        if new_status=='Completed':
+            for b in trek.bookings:
+                if b.status=='Booked':
+                    b.status="Completed"
+    db.session.commit()
+    flash('Trek updated successfully!','success')
+    return redirect(url_for('staff_trek_info',trek_id=trek.id))
+
+@app.route('/staff/trek/<int:trek_id>/participants')
+def staff_total_participants(trek_id):
+    if 'user_id' not in session:
+        flash('Please login to continue')
+        return redirect(url_for('login'))
+    if session.get('role')!='staff':
+        flash('Access denied! Please login to continue')
+        return redirect(url_for('login'))
+    trek=trek.query.filter_by(id=trek_id).first()
+    if trek.assigned_staff_id!=session['user_id']:
+        flash('This trek is not assigned for you','danger')
+        return redirect(url_for('staff_dashboard'))
+    bookings=Booking.query.filter_by(trek_id=trek.id).all()
+    booked_count=sum(1 for b in bookings if b.status=='Booked')
+    cancelled_count=sum(1 for b in bookings if b.status=='Cancelled')
+    completed_count=sum(1 for b in bookings if b.status=='Completed')
+    return render_template('staff/total_participants.html',bookings=bookings,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count)

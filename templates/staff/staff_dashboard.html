@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title%}
+Staff Dashboard
+{%endblock%}
+
+{% block navbar%}
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+            <a class="nav-link" href="{{url_for('index')}}"><b>TrekMate</b></a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{url_for('index')}}">Dashboard</a>
+            </li>
+        </ul>
+    </div>
+{%endblock%}
+{%block content%}
+<h2 class="mb-5 mt-3">Staff Dashboard</h2>
+
+<div class="row g-4"> 
+    {%for trek in assigned_treks %}
+    <div class="row">
+        <div class="col-sm-6 mb-3 mb-sm-0">
+            <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Trek Name: {{trek.name}} </h3>
+                <span>Trek Status: {{trek.status}}</span>
+
+                <p class="card-text">Trek Location: {{trek.location}}</p>
+                <p>Start Date: {{trek.start_date}}</p>
+                <p>End Date: {{trek.end_date}}</p>
+                <p>Duration: {{trek.duration}} days</p>
+                <p>Difficulty: {{trek.difficulty}}</p>
+                <span>Booked Count: {{trek.booked_count}} </span>
+                <span>Available Slots: {{trek.available_slots}}
+                <div class="card-footer d-flex gap-2">
+                    <a href="{{url_for('staff_trek_info',trek_id=trek.id)}}" class="btn btn-primary">Manage</a>
+                    <a href="{{url_for('staff_total_participants',trek_id=trek.id)}}" class="btn btn-primary">Total Participants</a>
+
+                </div>
+                
+            </div>
+            </div>
+        </div>
+        
+    </div>
+    {%endfor%}
+</div>
+
+{%if not assigned_treks%}
+<div class="text-center">
+    <b>Treks are not assigned yet.</b>
+
+</div>
+{%endif%}
+{%endblock%}
