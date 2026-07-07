@@ -17,19 +17,12 @@ Add Trek
             <a class="nav-link" href="{{url_for('admin_manage_trek')}}">Treks</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="{{('manage_staff')}}">Staff</a>
+            <a class="nav-link" href="{{url_for('manage_staff')}}">Staff</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="{{('search_users')}}">Users</a>
-            </li>
-            <li class="nav-item">
-            <a class="nav-link" href="{{('admin_bookings')}}">Bookings</a>
+            <a class="nav-link" href="{{url_for('admin_bookings')}}">Bookings</a>
             </li>
         </ul>
-        <form class="d-flex" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-            <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
         </div>
   </div>
 </div>
@@ -86,7 +79,7 @@ Add Trek
                 <option value="">Unassigned</option>
                 {%for i in staff_list%}
                 <option value="{{i.id}}"
-                    {%if trek and trek.assigned_staff_id==s.id%}selected{% endif %}>
+                    {%if trek and trek.assigned_staff_id==i.id%}selected{% endif %}>
                     {{i.name}}
 
                 </option>
@@ -97,7 +90,7 @@ Add Trek
             <label for="description" class="form-label" >Description:</label>
             <input type="text" class="form-control" name="description"> 
         </div>
-        <input type="submit" value="Add Trek" class="btn btn-success">
+        <a class="btn btn-success" type="submit" value="Add Trek" href="{{url_for('admin_add_trek')}}">Add Trek</a>
         
       </form>  
     </div>

@@ -1,0 +1,100 @@
+{%extends 'base.html'%}
+{% block title%}
+Available Treks
+{%endblock%}
+
+{% block navbar%}
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+            <a class="nav-link" href="{{url_for('index')}}"><b>TrekMate</b></a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="{{url_for('index')}}">Dashboard</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">All Treks</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">Bookings</a>
+            </li>
+        </ul>
+
+    </div>
+{%endblock%}
+
+{%block content%}
+<h2>Open Treks</h2>
+<div class="filter-section">
+    <form method="GET" class="row g-2">
+        <div class="col-md-6">
+            <label class="form-label">Search</label>
+            <input type="text" placeholder="search trek name or location" class="form-control" name="search" value="{{search}}"> 
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Difficulty</label>
+            <select class="form-select" name="difficulty">
+                <option value="">Select:</option>
+                {%for i in ["Easy","Moderate","Hard"]%}
+                <option value="{{i}}" {% if difficulty == i %}selected {%endif%}>{{ i }}</option>
+                {%endfor%}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-success">
+                Apply
+            </button>
+        </div>
+    </form>
+</div>
+
+
+<div class="row g-3">
+    {%for trek in treks%}
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Trek Name: {{trek.name}}</h5>
+                    <p>Trek difficulty: {{trek.difficulty}}</p>
+                    <p>Trek Location: {{trek.location}}</p>
+                    <p>Start Date: {{trek.start_date.strftime('%d %b %Y')}} </p>
+                    <p>End Date: {{trek.end_date.strftime('%d %b %Y')}} </p>
+                    <p>Duration: {{trek.duration}}</p>
+                    {% if trek.description%}
+                        <p>Description: {{trek.description}}</p>
+                    {%else%}
+                        <p>No description</p>
+                    {%endif%}
+                    <p>Price: {{trek.price}}</p>
+                    <p>Total Slots: {{trek.total_slots}} </p>
+                    <p>Available Slots: {% if trek.available_slots ==0 %} Full{%else%}{{ trek.available_slots }} left {%endif%}</p>
+                    <p>Assigned Staff: {%if trek.asigned_staff %}{{trek.assigned_staff.name}}{% else %}Not assigned yet{%endif%}</p>
+                    <div class="mt-4">
+                        {% if trek.status!= 'Open'%}
+                            <p>Trek is currently <b>{{trek.status}}</b></p>
+                        {% elif trek.available_slots == 0%}
+                            <p>No more available slots.</p>
+                        {%elif current_booking%}
+                            <div>
+                                <b>You have successfully booked a slot!</b>
+                                <p>Booking time {{ current_booking.booking_date.strftime("%d %b %Y") }}</p>
+                            </div>
+                            <a href="{{url_for('user_booking')}} " class="btn btn-success">View My Bookings</a>
+                            <form method="POST" action="{{url_for('user_cancel_booking',booking_id=current_booking.id)}}">
+                                <button type="submit" class="btn btn-ouline-danger">Cancel Booking</button>
+                            </form>
+                        {%else%}
+                            <form method="POST" action="{{url_for('user_book_trek', trek_id=trek.id)}}">
+                                <button type="submit" class="btn btn-outline-success">
+                                    Book Now
+                                </button>
+                            </form>
+                        {%endif%}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}

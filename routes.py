@@ -182,7 +182,7 @@ def admin_add_trek():
     return render_template('admin/admin_add_trek.html',staff_list=staff_list,trek=None)
 
 @app.route('/admin/admin_manage_trek/<int:trek_id>/edit',methods=['GET','POST'])
-def admin_edit_trek():
+def admin_edit_trek(trek_id):
     if 'user_id' not in session:
         flash('Please login to continue')
         return redirect(url_for('login'))
@@ -217,7 +217,7 @@ def admin_delete_trek(trek_id):
     if 'user_id' not in session:
         flash('Please login to continue')
         return redirect(url_for('login'))
-    if session.get('role')!=admin:
+    if session.get('role')!='admin':
         flash("Access denied! You can't access this webpage")
         return redirect(url_for('login'))
     trek=Trek.query.filter_by(id=trek_id).first()
@@ -353,3 +353,32 @@ def user_booking():
     user_id=session['user_id']
     bookings=(Booking.query.filter_by(user_id=user_id).all())
     return render_template('user/user_booking.html',bookings=bookings)
+
+@app.route('/user/bookings/<int:booking_id>/cancel',methods=['POST'])
+def user_cancel_booking(booking_id):
+    if 'user_id' not in session:
+        flash("please login to continue",'danger')
+        return redirect(url_for('login'))
+    if session.get('role')!='user':
+        flash("Access denied! Only users can accesss this website.",'danger')
+        return redirect(url_for('login'))
+    booking=Booking.query.filter_by(id=booking_id).first()
+    if booking.user_id != session['user_id']:
+        flash('Access denied','danger')
+        return redirect(url_for('user_bookings'))
+    
+    if booking.status !='Booked':
+        flash("You haven't booked this trek, cannot cancel!",'danger')
+        return redirect(url_for('user_bookings'))
+    trek_id=booking.trek_id
+    booking.status='Cancelled'
+    db.session.commit()
+    """calculating slots again"""
+    trek=Booking.trek
+    actual_booked=Booking.query.filter_by(trek_id=trek.id, status='Booked').count()
+    correct=max(0,trek.total_slots - actual_booked)
+    if trek.available_slots!=correct:
+        trek.available_slots=correct
+        db.session.commit()
+        flash("Booking cancelled!",'success')
+    return redirect(url_for('user_booking'))
