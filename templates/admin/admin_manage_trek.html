@@ -38,7 +38,7 @@ Manage Treks
 {%block content%}
 <div>
     <h2>Manage Treks</h2>
-    <a href="" class="btn btn-outline-info"  >Add Trek</a>
+    <a href="{{url_for('admin_add_trek')}}" class="btn btn-outline-info"  >Add Trek</a>
 </div>
 <div>
     <form method="GET" >
@@ -69,7 +69,8 @@ Manage Treks
       <th >Name</th>
       <th >Location</th>
       <th >Difficulty</th>
-      <th >Dates</th>
+      <th >Start Date</th>
+      <th > End Date</th>
       <th >Slots</th>
       <th >Staff</th>
       <th >Status</th>
@@ -99,8 +100,9 @@ Manage Treks
       </td>
       <td>
         <div class="d-flex flex-wrap gap-1 align-items-center">
-          <a type="submit" value="Edit" href="{{ url_for('admin_edit_trek', trek_id=trek.id) }}" class="btn btn-outline-primary"></a>
-        
+          <form method="POST" action="{{ url_for('admin_edit_trek', trek_id=trek.id) }}">
+            <button type="submit" value="Edit" class="btn btn-outline-primary">Edit</button>
+          </form>
             <form method="POST" action="{{url_for('admin_update_trek_status', trek_id=trek.id)}}" class="d-flex gap-1 align-items-center">
               
                 <select id="inputState" class="form-select" style="width:110px;font-size:0.75rem;">

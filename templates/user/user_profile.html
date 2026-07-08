@@ -24,10 +24,33 @@ TrekMate- user profile
 
 {%block content%}
 <h2>Profile:</h2>
-  <div>
-    <form action="" >
+<div class="d-flex justify-content-center">
+    <div class="card">
+      <h3 class="card-header">Username: {{User.name}}</h3>
+      
+      
+      <div class="card-body">
+        <h5 class="card-title">
 
-    </form>
+          <h5>Name: {{User.username}}</h5>
+          <h5>Role: {{User.role}}</h5>
+          <p>Email: {{User.email}}</p>
+          {% if user.is_blacklisted%}
+          <p>Blacklisted</p>
+          {%else%}
+          <p>Active</p>
+          {%endif%}
+        </h5>
+      </div>
   </div>
+
+</div>
+
+<div class="mt-5">
+  <h2>Trekking History</h2>
+
+
+</div>
+  
 
 {%endblock%}

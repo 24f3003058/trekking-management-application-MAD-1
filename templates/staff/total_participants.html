@@ -3,15 +3,30 @@
 Participants Details
 {%endblock%}
 
+
+{% block navbar%}
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+        <a class="nav-link" href="{{url_for('index')}}"><b>TrekMate</b></a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('index')}}">Dashboard</a>
+        </li>
+    </ul>
+</div>
+{%endblock%}
+
 {%block content%}
-<h2>Details of {{trek.name}}</h2>
+<h2 class="mb-3 mt-3">Details of {{trek.name}}</h2>
 <div class="d-flex gap-3 mb-2 ">
     <span>Booked Trek: {{booked_count}}</span>
     <span>Cancelled Trek: {{cancelled_count}}</span>
     <span>Completed trek: {{completed_count}}</span>
 </div>
 
-<table class="table table-hover align-middle mb-0">
+<table class="table table-hover align-middle mb-3">
   <thead>
     <tr>
       <th scope="col">Id</th>
@@ -38,9 +53,8 @@ Participants Details
 </table>
 
 {% if not bookings%}
-    <div class="text-center">
+    <div class="text-center mt-5">
         <p>No one registered for this trek.</p>
-
     </div>
 {%endif%}
 {%endblock%}

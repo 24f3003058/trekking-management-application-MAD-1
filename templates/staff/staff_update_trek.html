@@ -1,0 +1,53 @@
+{% extends 'base.html'%}
+{% block title%}
+Update Trek
+{%endblock%}
+
+{%block navbar%}
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+        <a class="nav-link" href="{{url_for('index')}}"><b>TrekMate</b></a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('index')}}">Dashboard</a>
+        </li>
+    </ul>
+</div>
+{%endblock%}
+
+{%block content%}
+<div><h2>Update Trek</h2></div>
+<div class="align-items-center">
+    <div class="card">
+        <div class="card-header">
+            Update Trek
+        </div>
+        <form method="POST" action="{{url_for('staff_update_trek',trek_id=trek.id)}}">
+            <div class="card-body row g-3">
+                <div class="col-md-8">
+                    <label class="form-label" for="available_slots">Available Slots:</label>
+                    <input type="number" class="form-control" id="available_slots" name="available_slots" placeholder="Enter value between 0 and total slots" value="{{trek.available_slots}}">
+                </div>
+                <div class="col-md-4">
+                    <label for="status" class="form-label">Status:</label>
+                    <select class="form-select" name="status">
+                        <option value="">Current status: {{trek.status}}</option>
+                        <option value="Open">Open</option>
+                        <option value="Closed">Closed</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+
+                </div>
+                
+            </div> 
+
+            <div>
+                <button href="staff_update_trek.html" class="btn btn-success" type="submit">Edit</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

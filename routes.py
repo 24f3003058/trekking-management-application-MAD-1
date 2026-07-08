@@ -71,23 +71,46 @@ def logout():
 
 @app.route('/user/dashboard')
 def user_dashboard():
-    if 'user_id' in session:
-        return render_template('index.html')
-    else:
-        flash('Please login to continue')
+    if 'user_id' not in session:
+        flash('Please login to continue.')
+        return redirect(url_for('login'))
+    if session.get('role')!='user':
+        flash('Access denied only users can login to this website')
         return redirect(url_for('login'))
     
 
-@app.route('/user/user_profile')
+@app.route('/user/user_profile' ,methods=['GET','POST'])
 def user_profile():
-    if 'user_id' in session:
-        return render_template({{url_for('user_profile')}})
-    else:
-        flash('Please login to continue')
+    if 'user_id' not in session:
+        flash('Please login to continue.')
         return redirect(url_for('login'))
-
-    session.pop('user_id')
-    return redirect(url_for('login'))
+    if session.get('role')!='user':
+        flash('Access denied only users can login to this website')
+        return redirect(url_for('login'))
+    user=db.session.get(User,session['user_id'])
+    if request.method=='POST':
+        name=request.form.get('name')
+        email=request.form.get('email')
+        new_password=request.form.get('new_password')
+        confirm_password=request.form.get('confirm_password')
+        user.name=name
+        user.email=email
+        if new_password:
+            if len(new_password)<6:
+                flash("Enter password of atleast 6 characters.")
+                booked_count=sum(1 for b in user.bookings if b.status=='Booked')
+                completed_count =sum(1 for b in user.bookings if b.status=='Completed')  
+                cancelled_count=sum(1 for b in user.bookings if b.status=='Cancelled')
+                return render_template('/user/user_profile.html',user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count)
+            user.password=new_password
+        db.session.commit()
+        session['name']=user.name
+        flash('Profile has been updated successfully!')
+        return redirect(url_for('user_profile'))
+    booked_count=sum(1 for b in user.bookings if b.status=='Booked')
+    completed_count =sum(1 for b in user.bookings if b.status=='Completed')  
+    cancelled_count=sum(1 for b in user.bookings if b.status=='Cancelled')
+    return render_template('user/profile.html',user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count)
     
 @app.route('/admin/admin_dashboard')
 def admin_dashboard():
@@ -194,13 +217,13 @@ def admin_edit_trek(trek_id):
     if request.method=='POST':
         trek.name=request.form.get('name',trek.name).strip()
         trek.location=request.form.get('location',trek.location).strip()
-        trek.difficulty=request.fron.get('difficulty',trek.difficulty)
+        trek.difficulty=request.form.get('difficulty',trek.difficulty)
         trek.duration=int(request.form.get('duration',trek.duration))
         new_total=int(request.form.get('total_slots',trek.total_slots))
         difference=new_total-trek.total_slots
         trek.total_slots=new_total
         trek.available_slots=max(0,trek.available_slots+difference)
-        trek.start=datetime.strptime(request.form.get('start_date'),'%Y-%m-%d').date()
+        trek.start_date=datetime.strptime(request.form.get('start_date'),'%Y-%m-%d').date()
         trek.end_date=datetime.strptime(request.form.get('end_date'),'%Y-%m-%d').date()
         trek.description=request.form.get('description')
         price_str=request.form.get('price',str(trek.price))
@@ -232,7 +255,7 @@ def admin_update_trek_status(trek_id):
         return redirect(url_for('login'))
     if session.get('role')!='admin':
         return redirect(url_for('login'))
-    trek=trek.query.filter_by(id=trek_id).first()
+    trek=Trek.query.filter_by(id=trek_id).first()
     new_status=request.form.get('status')
     valid=['Pending','Approved',"Completed",'Closed','Open']
     if new_status in valid:
@@ -410,9 +433,9 @@ def staff_trek_info(trek_id):
         flash('Trek is not assigned for you','danger')
         return redirect(url_for('staff_dashboard'))
     open_bookings= [b for b in trek.bookings if b.status =='Booked']
-    return render_template('staff/staff_trek_detail.html',trek=trek ,open_bookings=open_bookings)
+    return render_template('staff/staff_trek_info.html',trek=trek ,open_bookings=open_bookings)
 
-@app.route('/staff/trek/<int:trek_id>/update',methods=['POST'])
+@app.route('/staff/trek/<int:trek_id>/update',methods=['GET','POST'])
 def staff_update_trek(trek_id):
     if 'user_id' not in session:
         flash('Please login to continue')
@@ -435,7 +458,7 @@ def staff_update_trek(trek_id):
                 return redirect(url_for('staff_trek_info',trek_id=trek.id))
         except ValueError:
             flash('Invalid slot count.','danger')
-            return redirect(url_for('staff_trek_info',trek_id=trek.id))
+            return redirect(url_for('staff_update_trek',trek_id=trek.id))
     
     if new_status in ("Open","Closed" ,"Completed"):
         trek.status=new_status
@@ -447,7 +470,7 @@ def staff_update_trek(trek_id):
     flash('Trek updated successfully!','success')
     return redirect(url_for('staff_trek_info',trek_id=trek.id))
 
-@app.route('/staff/trek/<int:trek_id>/participants')
+@app.route('/staff/trek/<int:trek_id>/total_participants')
 def staff_total_participants(trek_id):
     if 'user_id' not in session:
         flash('Please login to continue')
@@ -455,12 +478,13 @@ def staff_total_participants(trek_id):
     if session.get('role')!='staff':
         flash('Access denied! Please login to continue')
         return redirect(url_for('login'))
-    trek=trek.query.filter_by(id=trek_id).first()
-    if trek.assigned_staff_id!=session['user_id']:
+    trek=Trek.query.filter_by(id=trek_id).first()
+    if trek.assigned_staff_id != session['user_id']:
         flash('This trek is not assigned for you','danger')
         return redirect(url_for('staff_dashboard'))
-    bookings=Booking.query.filter_by(trek_id=trek.id).all()
-    booked_count=sum(1 for b in bookings if b.status=='Booked')
-    cancelled_count=sum(1 for b in bookings if b.status=='Cancelled')
-    completed_count=sum(1 for b in bookings if b.status=='Completed')
-    return render_template('staff/total_participants.html',bookings=bookings,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count)
+    active_bookings=Booking.query.filter_by(trek_id=trek.id).all()
+    booked_count=sum(1 for b in active_bookings if b.status=='Booked')
+    cancelled_count=sum(1 for b in active_bookings if b.status=='Cancelled')
+    completed_count=sum(1 for b in active_bookings if b.status=='Completed')
+    return render_template('staff/total_participants.html',trek=trek,active_bookings=active_bookings,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count)
+
