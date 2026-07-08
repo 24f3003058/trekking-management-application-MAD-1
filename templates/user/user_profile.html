@@ -5,20 +5,23 @@ TrekMate- user profile
 {%endblock%}
 
 {% block navbar%}
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">TrekMate</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-        </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="nav-link active" aria-current="page" href="#">Dashboard</a>
-        <a class="nav-link" href="#">Features</a>
-        <a class="nav-link" href="#">Pricing</a>
-        <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-      </div>
-    </div>
-  </div>
+   <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+        <a class="nav-link" href="{{url_for('index')}}"><b>TrekMate</b></a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('index')}}">Dashboard</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('index')}}">Trek</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('index')}}">Bookings</a>
+        </li>
+    </ul>
+</div> 
 
 {%endblock%}
 
@@ -26,19 +29,19 @@ TrekMate- user profile
 <h2>Profile:</h2>
 <div class="d-flex justify-content-center">
     <div class="card">
-      <h3 class="card-header">Username: {{User.name}}</h3>
+      <h3 class="card-header">Username: {{user.name}}</h3>
       
       
       <div class="card-body">
         <h5 class="card-title">
 
-          <h5>Name: {{User.username}}</h5>
-          <h5>Role: {{User.role}}</h5>
-          <p>Email: {{User.email}}</p>
+          <h5>Name: {{user.username}}</h5>
+          <h5>Role: {{user.role}}</h5>
+          <p>Email: {{user.email}}</p>
           {% if user.is_blacklisted%}
-          <p>Blacklisted</p>
+            <p>Blacklisted</p>
           {%else%}
-          <p>Active</p>
+            <p>Active</p>
           {%endif%}
         </h5>
       </div>
@@ -48,9 +51,41 @@ TrekMate- user profile
 
 <div class="mt-5">
   <h2>Trekking History</h2>
-
+  <div class="card">
+    <div class="card-header">
+      Trek status count
+    </div>
+    <div class="card-body">
+      <p>Booked Trek Count: {{booked_count}}</p>
+      <p>Completed Trek Count: {{completed_count}}</p>
+      <p>Cancelled Trek Count: {{cancelled_count}}</p>
+    </div>
+  </div>
 
 </div>
+
+<div class="mt-4 mb-4" >
+  <h2>Edit user details</h2>
+  <div class="card-body">
+    <form method="POST">
+      <div>
+        <label class="form-label"   for="name">Full Name</label>
+        <input class="form-control" name="name" id="name" type="text" value="{{user.name}}" required>
+      </div>
+      <div>
+        <label class="form-label" for="email">Email:</label>
+        <input class="form-control" name="email" id="email" value="{{user.email}}" required>
+      </div>
+      <div>
+        <label class="form-label" for="new_password">new Password</label>
+        <input class="form-control" for="new_password" id="new_password" name="new_password" >
+        <p>Enter password of minimum 6 characters</p>
+      </div>
+      <div>
+        <button type="submit" class="btn btn-success">Edit</button>
+      </div>
+    </form>
+  </div>
   
 
 {%endblock%}

@@ -69,49 +69,7 @@ def logout():
 
 
 
-@app.route('/user/dashboard')
-def user_dashboard():
-    if 'user_id' not in session:
-        flash('Please login to continue.')
-        return redirect(url_for('login'))
-    if session.get('role')!='user':
-        flash('Access denied only users can login to this website')
-        return redirect(url_for('login'))
-    
-
-@app.route('/user/user_profile' ,methods=['GET','POST'])
-def user_profile():
-    if 'user_id' not in session:
-        flash('Please login to continue.')
-        return redirect(url_for('login'))
-    if session.get('role')!='user':
-        flash('Access denied only users can login to this website')
-        return redirect(url_for('login'))
-    user=db.session.get(User,session['user_id'])
-    if request.method=='POST':
-        name=request.form.get('name')
-        email=request.form.get('email')
-        new_password=request.form.get('new_password')
-        confirm_password=request.form.get('confirm_password')
-        user.name=name
-        user.email=email
-        if new_password:
-            if len(new_password)<6:
-                flash("Enter password of atleast 6 characters.")
-                booked_count=sum(1 for b in user.bookings if b.status=='Booked')
-                completed_count =sum(1 for b in user.bookings if b.status=='Completed')  
-                cancelled_count=sum(1 for b in user.bookings if b.status=='Cancelled')
-                return render_template('/user/user_profile.html',user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count)
-            user.password=new_password
-        db.session.commit()
-        session['name']=user.name
-        flash('Profile has been updated successfully!')
-        return redirect(url_for('user_profile'))
-    booked_count=sum(1 for b in user.bookings if b.status=='Booked')
-    completed_count =sum(1 for b in user.bookings if b.status=='Completed')  
-    cancelled_count=sum(1 for b in user.bookings if b.status=='Cancelled')
-    return render_template('user/profile.html',user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count)
-    
+  
 @app.route('/admin/admin_dashboard')
 def admin_dashboard():
     if 'user_id' not in session:
@@ -364,8 +322,62 @@ def admin_bookings():
     bookings=query.order_by(Booking.booking_date.desc()).all()
     return render_template('admin/admin_bookings.html' ,bookings=bookings,status_filter=status_filter)
 
+@app.route('/user/dashboard')
+def user_dashboard():
+    if 'user_id' not in session:
+        flash('Please login to continue.')
+        return redirect(url_for('login'))
+    if session.get('role')!='user':
+        flash('Access denied only users can login to this website')
+        return redirect(url_for('login'))
+    user_id=session['user_id']
+    user=db.session.get(User,user_id)
+    your_booked_treks=Booking.query.filter_by(user_id=user_id,status='Booked').all()
+    open_treks=Trek.query.filter_by(status='Open').all()
+    booked_count=sum(1 for b in user.bookings if b.status=='Booked')
+    completed_count=sum(1 for b in user.bookings if b.status=='Completed')
+    cancelled_count=sum(1 for b in user.bookings if b.status=='Cancelled')
+    total_open_trek=[b.trek for b in user.bookings if b.status=='Booked' and b.trek.status=='Open']
+    return render_template('user/user_dashboard.html',user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count,total_open_trek=total_open_trek)
+    
+@app.route('/user/find_new_trek') 
+def find_new_trek():
+    return "hello world"
 
-@app.route('/user/bookings')
+@app.route('/user/user_profile' ,methods=['GET','POST'])
+def user_profile():
+    if 'user_id' not in session:
+        flash('Please login to continue.')
+        return redirect(url_for('login'))
+    if session.get('role')!='user':
+        flash('Access denied only users can login to this website')
+        return redirect(url_for('login'))
+    user=db.session.get(User,session['user_id'])
+    if request.method=='POST':
+        name=request.form.get('name')
+        email=request.form.get('email')
+        new_password=request.form.get('new_password')
+        confirm_password=request.form.get('confirm_password')
+        user.name=name
+        user.email=email
+        if new_password:
+            if len(new_password)<6:
+                flash("Enter password of atleast 6 characters.")
+                booked_count=sum(1 for b in user.bookings if b.status=='Booked')
+                completed_count =sum(1 for b in user.bookings if b.status=='Completed')  
+                cancelled_count=sum(1 for b in user.bookings if b.status=='Cancelled')
+                return render_template('/user/user_profile.html',user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count)
+            user.password=new_password
+        db.session.commit()
+        session['name']=user.name
+        flash('Profile has been updated successfully!')
+        return redirect(url_for('user_profile'))
+    booked_count=sum(1 for b in user.bookings if b.status=='Booked')
+    completed_count =sum(1 for b in user.bookings if b.status=='Completed')  
+    cancelled_count=sum(1 for b in user.bookings if b.status=='Cancelled')
+    return render_template('/user/user_profile.html',user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count)
+  
+@app.route('/user/user_bookings')
 def user_booking():
     if 'user_id' not in session:
         flash("Please login to continue.",'danger')
@@ -377,7 +389,7 @@ def user_booking():
     bookings=(Booking.query.filter_by(user_id=user_id).all())
     return render_template('user/user_booking.html',bookings=bookings)
 
-@app.route('/user/bookings/<int:booking_id>/cancel',methods=['POST'])
+@app.route('/user/user_bookings/<int:booking_id>/cancel',methods=['POST'])
 def user_cancel_booking(booking_id):
     if 'user_id' not in session:
         flash("please login to continue",'danger')
