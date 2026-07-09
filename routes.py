@@ -64,7 +64,10 @@ def login_post():
 @app.route('/logout')
 def logout():
     if 'user_id' in session:
-        session.pop('user_id')
+        session.clear()
+        return redirect(url_for('index'))
+
+
 
 
 
@@ -78,18 +81,18 @@ def admin_dashboard():
     if session.get('role')!='admin':
         flash("Access denied! You can't access this web")
         return redirect(url_for('login'))
-    total_treks=Trek.query.count()
-    total_users=User.query.filter_by(role='user').count()
-    total_staff=User.query.filter_by(role='staff').count()
-    total_bookings=Booking.query.count()
+    total_treks_count=Trek.query.count()
+    total_users_count=User.query.filter_by(role='user').count()
+    total_staff_count=User.query.filter_by(role='staff').count()
+    total_bookings_count=Booking.query.count()
     active_bookings=Booking.query.filter_by(status='Booked').count()
     open_treks=Trek.query.filter_by(status='Open').count()
     pending_treks=Trek.query.filter_by(status='Pending').count()
     completed_treks=Trek.query.filter_by(status='Completed').count()
     recent_bookings=Booking.query.order_by(Booking.booking_date.desc()).limit(5).all()
     recent_treks=Trek.query.order_by(Trek.created_at.desc()).limit(5).all()
-    return render_template('admin/admin_dashboard.html',total_treks=total_treks,
-    total_users=total_users,total_staff=total_staff,total_bookings=total_bookings,
+    return render_template('admin/admin_dashboard.html',total_treks_count=total_treks_count,
+    total_users_count=total_users_count,total_staff_count=total_staff_count,total_bookings_count=total_bookings_count,
     active_bookings=active_bookings,open_treks=open_treks,pending_treks=pending_treks,
     completed_treks=completed_treks,recent_bookings=recent_bookings,recent_treks=recent_treks)
 
@@ -308,6 +311,37 @@ def admin_blacklist_staff(staff_id):
     status='blacklisted' if staff.is_blacklisted else 'activated'
     flash('staff member added successfully!','success')
     return redirect(url_for(''))
+
+@app.route('/admin/search_user', methods=['GET'])
+def search_user():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    if session.get('role')!='admin':
+        return redirect(url_for('login'))
+    search=request.args.get('search')
+    query=User.query.filter_by(role='user')
+    
+    if search:
+        query=query.filter(User.name.ilike(f'%{search}%'))
+    users=query.all()
+    return render_template('admin/search_user.html',users=users,search=search)
+
+
+@app.route('/admin/search_users/<int:user_id>/blacklist', methods=['POST'])
+def admin_blacklist_user(user_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    if session.get('role')!='admin':
+        return redirect(url_for('login'))
+    user=User.query.filter_by(id=user_id,role='user').first()
+    user.is_blacklisted =not user.is_blacklisted
+    db.session.commit()
+    if user.is_blacklisted:
+        status="blacklisted"
+    else:
+        status="activate"
+    flash(f"User has been {status}.","success")
+    return redirect(url_for('search_user'))
 
 @app.route('/admin/bookings')
 def admin_bookings():

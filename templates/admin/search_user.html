@@ -1,8 +1,8 @@
 {% extends 'base.html'%}
 
-{% entends title%}
+{% block title%}
 Manage Users
-{%endblock%}
+{% endblock %}
 
 {%block navbar%}
     <div>
@@ -12,25 +12,22 @@ Manage Users
             <a class="nav-link" href="{{url_for('index')}}"><b>TrekMate</b></a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="{{url_for('index')}}">Dashboard</a>
+            <a class="nav-link" href="{{url_for('admin_dashboard')}}">Dashboard</a>
             </li>
             <li class="nav-item">
             <a class="nav-link" href="{{url_for('admin_manage_trek')}}">Treks</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="{{('manage_staff')}}">Staff</a>
+            <a class="nav-link" href="{{url_for('manage_staff')}}">Staff</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="{{('search_users')}}">Users</a>
+            <a class="nav-link" href="{{url_for('search_user')}}">Users</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="{{('admin_bookings')}}">Bookings</a>
+            <a class="nav-link" href="{{url_for('admin_bookings')}}">Bookings</a>
             </li>
         </ul>
-        <form class="d-flex" role="search">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-            <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
+        
         </div>
   </div>
 </div>
@@ -43,7 +40,7 @@ Manage Users
             <label class="form-label">Search Users</label>
             <input type="text" class="form-control" name="search" value="{{search}}"> 
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3 mt-2">
             <button type="submit" class="btn btn-success">
                 Search
             </button>
@@ -53,27 +50,26 @@ Manage Users
 
 <div class="card-body p-0">
     <div class="table-responsive">
-        <table table table-hover align-middle mb-0>
+        <table class="table table-hover align-middle mb-0">
            <thead>
             <tr>
                 <th>ID</th>
                 <th>Name</th>
                 <th>Username</th>
                 <th>Email</th>
-                <th>Bookings</th>
-                <th>Joined</th>
+                <th>Booked Treks</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
            </thead> 
            <tbody>
             {%for user in users%}
-            <tr class="{if user.is_blacklisted %}table-danger{%endif%}">
+            <tr class="{% if user.is_blacklisted %}table-danger{% endif %}">
                 <td>{{user.id}}</td>
                 <td>{{user.name}}</td>
                 <td>{{user.username}}</td>
                 <td>{{user.email}}</td>
-                <td>{{user.created_at.strftime('%d %b %Y')}}</td>
+                <td>{{user.bookings | selectattr('status','equalto','Booked') |list |length}}</td>
                 <td>
                     {%if user.is_blacklisted %}
                         <span>Blacklisted</span>
@@ -82,8 +78,8 @@ Manage Users
                     {%endif%}
                 </td>
                 <td>
-                    <form method="POST" action="{{url_for('admin_blacklisted_user',user_id=user.id)}}" >
-                        <button type="submit" class="btn btn-sm {% if user.is-blacklisted %}btn-outline-success{% else %}btn-outline-danger{% endif %}">
+                    <form method="POST" action="{{url_for('admin_blacklist_user',user_id=user.id)}}" >
+                        <button type="submit" class="btn btn-sm {% if user.is_blacklisted %}btn-outline-success{% else %}btn-outline-danger{% endif %}">
                             {% if user.is_blacklisted%}
                                 Activate
                             {%else%}

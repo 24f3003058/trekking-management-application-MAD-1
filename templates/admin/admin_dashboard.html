@@ -12,19 +12,19 @@
           <a class="nav-link" href="{{url_for('index')}}"><b>TrekMate</b></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" href="{{url_for('index')}}">Dashboard</a>
+          <a class="nav-link active" href="{{url_for('admin_dashboard')}}">Dashboard</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{url_for('admin_manage_trek')}}">Treks</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{('manage_staff')}}">Staff</a>
+          <a class="nav-link" href="{{url_for('manage_staff')}}">Staff</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{('search_users')}}">Users</a>
+          <a class="nav-link" href="{{url_for('search_user')}}">Users</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{('admin_bookings')}}">Bookings</a>
+          <a class="nav-link" href="{{url_for('admin_bookings')}}">Bookings</a>
         </li>
       </ul>
       <form class="d-flex" role="search">
@@ -55,27 +55,27 @@
 <div class="d-flex flex-wrap gap-4 mb-4 mt-4">
     <div class="card" style="width: 18rem;">
         <div class="card-body">
-            <h5 class="card-title">{{total_treks}}</h5>
+            <h5 class="card-title">{{total_treks_count}}</h5>
             <h6 class="card-subtitle mb-2 text-body-secondary">Total Treks</h6>
             
         </div>
     </div>
     <div class="card" style="width: 18rem;">
         <div class="card-body">
-            <h5 class="card-title">{{total_users}}</h5>
+            <h5 class="card-title">{{total_users_count}}</h5>
             <h6 class="card-subtitle mb-2 text-body-secondary">Total Users</h6>
         </div>
     </div>
     <div class="card" style="width: 18rem;">
         <div class="card-body">
-            <h5 class="card-title">{{total_staff}}</h5>
+            <h5 class="card-title">{{total_staff_count}}</h5>
             <h6 class="card-subtitle mb-2 text-body-secondary">Total Staff</h6>
         </div>
     </div>
     
     <div class="card" style="width: 18rem;">
         <div class="card-body">
-            <h5 class="card-title">{{total_bookings}}</h5>
+            <h5 class="card-title">{{total_bookings_count}}</h5>
             <h6 class="card-subtitle mb-2 text-body-secondary">Total Bookings</h6>
         </div>
     </div>
