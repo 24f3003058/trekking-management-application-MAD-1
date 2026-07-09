@@ -20,7 +20,7 @@ Manage Treks
             <a class="nav-link" href="{{url_for('manage_staff')}}">Staff</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="#">Users</a>
+            <a class="nav-link" href="{{url_for('search_user')}}">Users</a>
             </li>
             <li class="nav-item">
             <a class="nav-link" href="{{url_for('admin_bookings')}}">Bookings</a>
@@ -75,7 +75,7 @@ Manage Treks
       <th >Staff</th>
       <th >Status</th>
       <th >Actions</th>
-      <th>Trek Status</th>
+      
 
     </tr>
   </thead>
@@ -92,20 +92,18 @@ Manage Treks
       <td>{% if trek.assigned_staff%}
             {{trek.assigned_staff.name}}
           {%else%}
-           Unassigned
-           {%endif%}
+            Unassigned
+          {%endif%}
       </td>
       <td>
         {{trek.status}}
       </td>
       <td>
         <div class="d-flex flex-wrap gap-1 align-items-center">
-          <form method="POST" action="{{ url_for('admin_edit_trek', trek_id=trek.id) }}">
-            <button type="submit" value="Edit" class="btn btn-outline-primary">Edit</button>
-          </form>
-            <form method="POST" action="{{url_for('admin_update_trek_status', trek_id=trek.id)}}" class="d-flex gap-1 align-items-center">
+          <a href="{{ url_for('admin_edit_trek', trek_id=trek.id) }}" class="btn btn-outline-primary">Edit</a>
+          <form method="POST" action="{{url_for('admin_update_trek_status', trek_id=trek.id)}}" class="d-flex gap-2 align-items-center">
               
-                <select id="inputState" class="form-select" style="width:110px;font-size:0.75rem;">
+                <select name="status" class="form-select" style="width:100px;font-size:0.65rem;">
                   {% for s in ['Pending','Approved','Open','Completed','Closed']%}
                   <option value="{{ s }}" {% if trek.status == s %}selected{% endif %}>{{ s }}</option>
                   {% endfor %}
@@ -114,7 +112,7 @@ Manage Treks
                   Select
                 </button>
                 
-            </form>
+          </form>
             <form method="POST" action="{{url_for('admin_delete_trek',trek_id=trek.id)}}">
                 <button type="submit" class="btn btn-outline-danger">
                     Delete Trek

@@ -105,14 +105,14 @@ def admin_manage_trek():
     if session.get('role')!='admin':
         flash("Access denied! You can't access this web")
         return redirect(url_for('login'))
-    status_filter=request.args.get('status','')
-    search=request.args.get('search','')
+    status_filter=request.args.get('status')
+    search=request.args.get('search')
     query=Trek.query
     if status_filter:
         query=query.filter_by(status=status_filter)
     if search:
-        query=query.filter_by(Trek.name.ilike(f'%{search}%'))
-    treks=query.order_by(Trek.created_at.desc()).all()
+        query=query.filter(Trek.name.ilike(f'%{search}%'))
+    treks=query.all()
     myusers=User.query.filter_by(role='staff',is_blacklisted=False).all()
     return render_template('admin/admin_manage_trek.html',treks=treks,myusers=myusers,status_filter=status_filter,search=search)
 
@@ -218,8 +218,8 @@ def admin_update_trek_status(trek_id):
         return redirect(url_for('login'))
     trek=Trek.query.filter_by(id=trek_id).first()
     new_status=request.form.get('status')
-    valid=['Pending','Approved',"Completed",'Closed','Open']
-    if new_status in valid:
+    valid_status=['Pending','Approved',"Completed",'Closed','Open']
+    if new_status in valid_status:
         trek.status=new_status
         if new_status=='Completed':
             for b in trek.bookings:
@@ -227,7 +227,7 @@ def admin_update_trek_status(trek_id):
                     b.status='Completed'    
         db.session.commit()
     else:
-        flash('Invalid status','danger')
+        flash('Please enter a valid status.','danger')
     return redirect(url_for('admin_manage_trek'))
 
 @app.route('/admin/manage_staff')
