@@ -332,16 +332,16 @@ def user_dashboard():
         return redirect(url_for('login'))
     user_id=session['user_id']
     user=db.session.get(User,user_id)
-    your_booked_treks=Booking.query.filter_by(user_id=user_id,status='Booked').all()
+    your_booked_treks=[b.trek for b in Booking.query.filter_by(user_id=user_id,status='Booked').all()]
     open_treks=Trek.query.filter_by(status='Open').all()
     booked_count=sum(1 for b in user.bookings if b.status=='Booked')
     completed_count=sum(1 for b in user.bookings if b.status=='Completed')
     cancelled_count=sum(1 for b in user.bookings if b.status=='Cancelled')
     total_open_trek=[b.trek for b in user.bookings if b.status=='Booked' and b.trek.status=='Open']
-    return render_template('user/user_dashboard.html',open_treks=open_treks,user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count,total_open_trek=total_open_trek)
+    return render_template('user/user_dashboard.html',open_treks=open_treks,user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count,total_open_trek=total_open_trek,your_booked_treks=your_booked_treks)
     
 
-@app.route('/user/user_dashboard/<int:trek_id>/book',methods=['POST',"GET"])
+@app.route('/user/user_dashboard/<int:trek_id>/book',methods=['POST'])
 def user_booked_trek(trek_id):
     if 'user_id' not in session:
         flash('Please login to continue.')
@@ -370,14 +370,40 @@ def user_booked_trek(trek_id):
         flash('this trek is already booked by you!','danger')
         redirect(url_for('user_dashboard'))
     new_booking=Booking(user_id=user_id,trek_id=trek_id,status='Booked')
-    trek.available_slots=-1
+    trek.available_slots -= 1
     db.session.add(new_booking)
     db.session.commit()
     flash(f'Successfully booked trek to {trek.name} !','success')
     return redirect(url_for('user_dashboard'))
 
+@app.route('/user/user_dashboard/<int:trek_id>/cancel', methods=['POST'])
+def user_trek_cancel(trek_id):
+    if 'user_id' not in session:
+        flash('Please login to continue.')
+        return redirect(url_for('login'))
+    if session.get('role')!='user':
+        flash('Access denied only users can login to this website')
+        return redirect(url_for('login'))
+    user_id=session['user_id']
+    trek=Trek.query.filter_by(id=trek_id).first()
+    booking_info=Booking.query.filter_by(trek_id=trek_id,user_id=user_id,status='Booked').first()
+    if not booking_info:
+        flash("You haven't book this trek.",'danger')
+        return redirect(url_for('user_trek_info',trek_id=trek_id))
+    booking_info.status='Cancelled'
+    db.session.commit()
+    booking_done=Booking.query.filter_by(trek_id=trek.id,status='Booked').count()
+    after_cancel=max(0,trek.total_slots-booking_done)
+    if trek.available_slots != after_cancel:
+        trek.available_slots=after_cancel
+        db.session.commit()
+    flash('Booking cancelled successfully','success')
+    return redirect(url_for('user_dashboard'))
 
-@app.route('/user/user_dashboard/<int:trek_id>/trek_detail')
+
+
+
+@app.route('/user/user_dashboard/<int:trek_id>/trek_detail', methods=['POST'])
 def user_trek_info(trek_id):
     if 'user_id' not in session:
         flash('Please login to continue.')
@@ -389,6 +415,7 @@ def user_trek_info(trek_id):
     user=db.session.get(User,user_id)
     trek=Trek.query.filter_by(id=trek_id).first()
     current_booking=Booking.query.filter_by(user_id=user_id,trek_id=trek_id,status='Booked').first()
+    
     return render_template('/user/user_trek_info.html',trek_id=trek.id,trek=trek,current_booking=current_booking)
 
 
