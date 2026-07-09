@@ -1,0 +1,67 @@
+{% extends 'base.html'%}
+
+{% block title%}
+Trek Details
+{%endblock%}
+
+{%block navbar%}
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+        <a class="nav-link" href="{{url_for('index')}}"><b>TrekMate</b></a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('index')}}">Dashboard</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('index')}}">Trek</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('index')}}">Bookings</a>
+        </li>
+    </ul>
+</div>
+{%endblock%}
+{%block content%}
+<div class="d-flex justify-content-start mb-4 mt-4">
+    <div class="d-flex justify-content-start">
+        <a href="{{url_for('user_dashboard')}}" class="btn btn-outline-success">
+            <i class="bi bi-arrow-left">Back</i>
+        </a>
+    
+        <h2 class="md-2">Details of <i>{{trek.name}}</i></h2>
+    </div>
+    
+    
+</div>
+<div class="card">
+  <div class="card-body">
+    <p class="card-text"><b>Location:</b> {{trek.location}}</p>
+    <p class="card-text"><b>Difficulty: </b>{{trek.difficulty}}</p>
+    <p class="card-text"><b>Duration: </b>{{trek.duration}}</p>
+    <p class="card-text"><b>Start Date: </b>{{trek.start_date}}</p>
+    <p class="card-text"><b>End Date: </b>{{trek.end_date}}</p>
+    <p class="card-text"><b>Guide: </b>{%if trek.assigned_staff%}{{trek.assigned_staff.name}}{%else%} Not decided yet{%endif%} </p>
+    {%if trek.status!='Open' %}
+        <div>
+            <p>You can't book this trek. Trek is {{trek.status}}.</p>
+        </div>
+    {%elif trek.available_slots==0%}
+        <div>
+            <p>No slots left.</p>
+        </div>
+    {%elif current_booking %}
+        <div>
+            <strong>You are already booked</strong>
+        </div>
+
+    {%else%}
+        <form method="POST",action="{{url_for('user_booking',trek_id=trek.id)}}" >
+            <button type="submit" class="btn btn-success">Book Now</button>
+        </form>
+    {%endif%}
+  </div>
+</div>
+
+{%endblock%}
