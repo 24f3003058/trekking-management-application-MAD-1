@@ -25,6 +25,9 @@ Manage Treks
             <li class="nav-item">
             <a class="nav-link" href="{{url_for('admin_bookings')}}">Bookings</a>
             </li>
+            <li class="nav-item">
+            <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
+            </li>
         </ul>
         
        
@@ -33,11 +36,11 @@ Manage Treks
 {%endblock%}
 
 {%block content%}
-<div>
+<div class="mb-2">
     <h2>Manage Treks</h2>
     <a href="{{url_for('admin_add_trek')}}" class="btn btn-outline-info"  >Add Trek</a>
 </div>
-<div>
+<div class="mt-2">
     <form method="GET" >
         <div class="col-md-6">
             <label class="form-label">Search</label>

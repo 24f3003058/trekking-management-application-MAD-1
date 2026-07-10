@@ -25,6 +25,9 @@ All bookings
             <li class="nav-item">
             <a class="nav-link" href="{{url_for('admin_bookings')}}">Bookings</a>
             </li>
+            <li class="nav-item">
+            <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
+            </li>
         </ul>
         </div>
   </div>
@@ -37,7 +40,7 @@ All bookings
     <form method="GET" class="row g-2 align-items-end">
         <div class="col-md-4">
             <label class="form-label">Search :</label>
-            <select class="form-select">
+            <select class="form-select" name="status">
                 <option value="">All</option>
                 {%for s in ['Booked','Cancelled','Completed'] %}
                 <option value="{{s}}" {% if status_filter == s %}selected{% endif %}>{{s}}</option>

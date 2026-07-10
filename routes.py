@@ -89,8 +89,8 @@ def admin_dashboard():
     open_treks=Trek.query.filter_by(status='Open').count()
     pending_treks=Trek.query.filter_by(status='Pending').count()
     completed_treks=Trek.query.filter_by(status='Completed').count()
-    recent_bookings=Booking.query.order_by(Booking.booking_date.desc()).limit(5).all()
-    recent_treks=Trek.query.order_by(Trek.created_at.desc()).limit(5).all()
+    recent_bookings=Booking.query.all()
+    recent_treks=Trek.query.all()
     return render_template('admin/admin_dashboard.html',total_treks_count=total_treks_count,
     total_users_count=total_users_count,total_staff_count=total_staff_count,total_bookings_count=total_bookings_count,
     active_bookings=active_bookings,open_treks=open_treks,pending_treks=pending_treks,
@@ -354,7 +354,7 @@ def admin_bookings():
     if status_filter:
         query=query.filter_by(status=status_filter)
     bookings=query.all()
-    return render_template('admin/admin_bookings.html',bookings=bookings,status_filter=status_filter,search=search)
+    return render_template('admin/admin_bookings.html',bookings=bookings,status_filter=status_filter)
 
 @app.route('/user/user_dashboard')
 def user_dashboard():
