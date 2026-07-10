@@ -10,13 +10,16 @@ Available Treks
             <a class="nav-link" href="{{url_for('index')}}"><b>TrekMate</b></a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="{{url_for('index')}}">Dashboard</a>
+            <a class="nav-link" href="{{url_for('user_dashboard')}}">Dashboard</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="#">All Treks</a>
+            <a class="nav-link" href="{{url_for('view_new_trek')}}">Treks</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="#">Bookings</a>
+            <a class="nav-link" href="{{url_for('user_profile')}}">Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
             </li>
         </ul>
 
@@ -50,10 +53,11 @@ Available Treks
 
 
 <div class="row g-3">
-    {%for trek in treks%}
+    
     <div class="row row-cols-1 row-cols-md-2 g-4">
+        {%for trek in treks%}
         <div class="col">
-            <div class="card">
+            <div class="card mb-5">
                 <div class="card-body">
                     <h5 class="card-title">Trek Name: {{trek.name}}</h5>
                     <p>Trek difficulty: {{trek.difficulty}}</p>
@@ -85,7 +89,7 @@ Available Treks
                                 <button type="submit" class="btn btn-ouline-danger">Cancel Booking</button>
                             </form>
                         {%else%}
-                            <form method="POST" action="{{url_for('user_book_trek', trek_id=trek.id)}}">
+                            <form method="POST" action="{{url_for('user_trek_info', trek_id=trek.id)}}">
                                 <button type="submit" class="btn btn-outline-success">
                                     Book Now
                                 </button>
@@ -94,6 +98,7 @@ Available Treks
                     </div>
                 </div>
             </div>
+        {%endfor%}    
         </div>
     </div>
 </div>

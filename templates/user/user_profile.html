@@ -12,13 +12,16 @@ TrekMate- user profile
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="{{url_for('index')}}">Dashboard</a>
+            <a class="nav-link" href="{{url_for('user_dashboard')}}">Dashboard</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{url_for('index')}}">Trek</a>
+            <a class="nav-link" href="{{url_for('view_new_trek')}}">Trek</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{url_for('index')}}">Bookings</a>
+            <a class="nav-link" href="{{url_for('user_profile')}}">Profile</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
         </li>
     </ul>
 </div> 
@@ -39,9 +42,9 @@ TrekMate- user profile
           <h5>Role: {{user.role}}</h5>
           <p>Email: {{user.email}}</p>
           {% if user.is_blacklisted%}
-            <p>Blacklisted</p>
+            <p>Status: Blacklisted</p>
           {%else%}
-            <p>Active</p>
+            <p>Status: Active</p>
           {%endif%}
         </h5>
       </div>

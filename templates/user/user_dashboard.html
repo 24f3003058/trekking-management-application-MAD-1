@@ -7,18 +7,20 @@ User Dashboard
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-        <a class="nav-link" href="{{url_for('index')}}"><b>TrekMate</b></a>
+            <a class="nav-link" href="{{url_for('index')}}"><b>TrekMate</b></a>
         </li>
-
         <li class="nav-item">
             <a class="nav-link" href="{{url_for('user_dashboard')}}">Dashboard</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{url_for('index')}}">Trek</a>
+            <a class="nav-link" href="{{url_for('view_new_trek')}}">Treks</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{url_for('index')}}">Bookings</a>
+            <a class="nav-link" href="{{url_for('user_profile')}}">Profile</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
+       </li>
     </ul>
 </div>
 {%endblock%}
@@ -55,7 +57,7 @@ User Dashboard
     <div class="card" style="width:18rem;">
         <div class="card-body">
             <h4 class="card-title">
-                {{total_open_treks |length}}
+                {{total_open_trek |length}}
             </h4>
             <h5 class="card-subtitle mb-2">Open Treks</h5>
         </div>

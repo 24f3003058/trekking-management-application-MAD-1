@@ -434,9 +434,6 @@ def user_trek_cancel(trek_id):
     flash('Booking cancelled successfully','success')
     return redirect(url_for('user_dashboard'))
 
-
-
-
 @app.route('/user/user_dashboard/<int:trek_id>/trek_detail', methods=['POST'])
 def user_trek_info(trek_id):
     if 'user_id' not in session:
@@ -452,6 +449,14 @@ def user_trek_info(trek_id):
     
     return render_template('/user/user_trek_info.html',trek_id=trek.id,trek=trek,current_booking=current_booking)
 
+@app.route('/user/view_new_trek')
+def view_new_trek():
+    difficulty=request.args.get('difficulty')
+    query=Trek.query.filter_by(status='Open')
+    if difficulty:
+        query=query.filter_by(difficulty=difficulty)
+    treks=query.order_by(Trek.start_date).all()
+    return render_template('user/view_new_treks.html',treks=treks,difficulty=difficulty)
 
 
 @app.route('/user/user_profile' ,methods=['GET','POST'])
@@ -485,7 +490,7 @@ def user_profile():
     booked_count=sum(1 for b in user.bookings if b.status=='Booked')
     completed_count =sum(1 for b in user.bookings if b.status=='Completed')  
     cancelled_count=sum(1 for b in user.bookings if b.status=='Cancelled')
-    return render_template('/user/user_profile.html',user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count)
+    return render_template('/user/user_profile.html', user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count)
   
 @app.route('/user/user_bookings')
 def user_booking():
@@ -511,7 +516,6 @@ def user_cancel_booking(booking_id):
     if booking.user_id != session['user_id']:
         flash('Access denied','danger')
         return redirect(url_for('user_bookings'))
-    
     if booking.status !='Booked':
         flash("You haven't booked this trek, cannot cancel!",'danger')
         return redirect(url_for('user_bookings'))
