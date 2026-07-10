@@ -1,6 +1,6 @@
 from app import app
 from flask_sqlalchemy import SQLAlchemy
-
+from datetime import datetime
 db=SQLAlchemy(app)
 
 class User(db.Model):
@@ -11,7 +11,7 @@ class User(db.Model):
     password=db.Column(db.String(100),nullable=False)
     email=db.Column(db.String(100),nullable=False)
     role=db.Column(db.String(50),nullable=False,default='user')
-    created_date=db.Column(db.DateTime)
+    created_date=db.Column(db.DateTime ,default=datetime.utcnow)
     is_blacklisted = db.Column(db.Boolean, default=False)
     bookings=db.relationship('Booking',backref='user' ,lazy=True ,foreign_keys='Booking.user_id')
     assigned_treks=db.relationship('Trek',backref='assigned_staff',lazy=True,foreign_keys='Trek.assigned_staff_id')
@@ -39,7 +39,7 @@ class Booking(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     user_id=db.Column(db.Integer,db.ForeignKey('users.id'),nullable=False)
     trek_id=db.Column(db.Integer,db.ForeignKey('treks.id'),nullable=False)
-    booking_date=db.Column(db.DateTime)
+    booking_date=db.Column(db.DateTime, default=datetime.utcnow)
     status=db.Column(db.String(50),nullable=False ,default='Booked')
 
 with app.app_context():

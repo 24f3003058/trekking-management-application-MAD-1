@@ -349,12 +349,12 @@ def admin_bookings():
         return redirect(url_for('login'))
     if session.get('role')!='admin':
         return redirect(url_for('login'))
-    status_filter=request.args.get('status','')
+    status_filter=request.args.get('status')
     query=Booking.query
     if status_filter:
         query=query.filter_by(status=status_filter)
-    bookings=query.order_by(Booking.booking_date.desc()).all()
-    return render_template('admin/admin_bookings.html' ,bookings=bookings,status_filter=status_filter)
+    bookings=query.all()
+    return render_template('admin/admin_bookings.html',bookings=bookings,status_filter=status_filter,search=search)
 
 @app.route('/user/user_dashboard')
 def user_dashboard():
