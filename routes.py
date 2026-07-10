@@ -230,7 +230,7 @@ def admin_update_trek_status(trek_id):
         flash('Please enter a valid status.','danger')
     return redirect(url_for('admin_manage_trek'))
 
-@app.route('/admin/manage_staff')
+@app.route('/admin/manage_staff',methods=['GET'])
 def manage_staff():
     if 'user_id' not in session:
         return redirect(url_for('login'))
@@ -241,7 +241,7 @@ def manage_staff():
     query=User.query.filter_by(role='staff')
     if search:
         query=query.filter(User.name.ilike(f'%{search}%'))
-    myusers=query.order_by(User.name).all()
+    myusers=query.all()
     treks=Trek.query.filter(Trek.status.in_(['Pending',"Approved","Open"])).order_by(Trek.name).all()
     return render_template("admin/manage_staff.html",myusers=myusers, treks=treks,search=search)
 
@@ -289,16 +289,16 @@ def admin_assign_staff(staff_id):
     staff=User.query.filter_by(id=staff_id,role='staff').first()
     trek_id=request.form.get('trek_id')
     if not trek_id:
-        flash('Please select a trek.','danger')
+        flash('Please choose a trek for this staff','warning')
         return redirect(url_for('manage_staff'))
     trek=Trek.query.filter_by(id=int(trek_id)).first()
     trek.assigned_staff_id=staff_id
     db.session.commit()
-    flash({staff.name}, " assigned to trek ",{trek.name}, ".","success")
+    flash("Staff assigned successfully","success")
     return redirect(url_for('manage_staff'))
 
 
-@app.route('/admin/manage_staff/<int:staff_id>/blacklist')
+@app.route('/admin/manage_staff/<int:staff_id>/blacklist', methods=['POST'])
 def admin_blacklist_staff(staff_id):
     if 'user_id' not in session:
         return redirect('login')
@@ -310,7 +310,7 @@ def admin_blacklist_staff(staff_id):
     db.session.commit()
     status='blacklisted' if staff.is_blacklisted else 'activated'
     flash('staff member added successfully!','success')
-    return redirect(url_for(''))
+    return redirect(url_for('manage_staff'))
 
 @app.route('/admin/search_user', methods=['GET'])
 def search_user():

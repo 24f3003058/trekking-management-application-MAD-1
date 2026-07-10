@@ -18,7 +18,7 @@
             <a class="nav-link" href="{{url_for('manage_staff')}}">Staff</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="{{url_for('search_users')}}">Users</a>
+            <a class="nav-link" href="{{url_for('search_user')}}">Users</a>
             </li>
             <li class="nav-item">
             <a class="nav-link" href="{{url_for('admin_bookings')}}">Bookings</a>
@@ -67,7 +67,7 @@
         </thead>
         <tbody>
             {%for staff in myusers%}
-            <tr class="{% if staff.is_backlisted %}table-danger{%endif%}">
+            <tr class="{% if staff.is_backlisted %}table-danger{% endif %}">
                 <td>{{staff.id}}</td>
                 <td>{{staff.name}}</td>
                 <td>{{staff.username}}</td>
@@ -75,7 +75,7 @@
                 <td>{% set my_treks=staff.assigned_treks %}
                     {%if my_treks%}
                         {%for t in my_treks%}
-                            <span>{{t.name}}</span>
+                            <div>{{t.name}}</div>
                         {%endfor%}
                     {%else%}
                         <span>None</span>
@@ -83,17 +83,26 @@
                 </td>
                 <td>
                     {%if staff.is_blacklisted %}
-                        <span>Blacklisted</span>
+                        <span>Blacklist</span>
                     {%else%}
                         <span>Active</span>
                     {%endif%}
                 </td>
                 <td>
                     <div class="d-flex flex-wrap gap-1">
-                        <form method="POST" action="{{url_for('admin_blacklisted_staff,staff_id=staff.id')}}">
-                            <button type="submit" class="btn btn-dark {% if staff.is_blacklisted %}btn-outline-success{% else %}btn-outline-warning{% endif %}"
-                                title="{% if staff.is_blacklisted %}Activate{% else %}Blacklist{% endif %}">
-                            <i class="{%if staff.is_blacklisted %}Yes{%else%}No{%endif%}"></i></button>
+                        <form method="POST" action="{{url_for('admin_blacklist_staff',staff_id=staff.id)}}">
+                            <button type="submit" class="btn btn-warning 
+                            {% if staff.is_blacklisted %}
+                                btn-outline-success
+                            {% else %}
+                                btn-outline-Danger
+                            {% endif %}">
+                                {% if staff.is_blacklisted %}
+                                    Active
+                                {% else %}
+                                   Blacklist
+                                {% endif %}
+                            </button>
                             
                         </form>
                         <form method="POST" action="{{url_for('admin_delete_staff',staff_id=staff.id)}}">
@@ -104,10 +113,10 @@
                 <td>
                     <form method="POST" action="{{url_for('admin_assign_staff',staff_id=staff.id)}}">
                         <label class="form-label">Assign to Trek:</label>
-                        <select name="trek_id" class="form-select"></select>
+                        <select name="trek_id" class="form-select">
                             <option value="">Select a trek</option>
                             {% for t in treks%}
-                            <option vlaue="{{t.id}}">{{t.name}} ({{t.status}})</option>
+                            <option value="{{t.id}}">{{t.name}} ({{t.status}})</option>
                             {%endfor%}
                         </select>
                         <button type="submit" class="btn btn-success">Assign</button>   
