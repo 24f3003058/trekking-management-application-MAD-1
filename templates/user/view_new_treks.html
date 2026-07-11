@@ -43,6 +43,10 @@ Available Treks
                 {%endfor%}
             </select>
         </div>
+        <div class="col-md-4">
+            <label class="form-label">Location</label>
+            <input type="text" class="form-control" name="location" placeholder="search by location" value="{{location}}"> 
+        </div>
         <div class="col-md-2">
             <button type="submit" class="btn btn-success">
                 Apply
@@ -88,6 +92,7 @@ Available Treks
                             <form method="POST" action="{{url_for('user_cancel_booking',booking_id=current_booking.id)}}">
                                 <button type="submit" class="btn btn-ouline-danger">Cancel Booking</button>
                             </form>
+                            <p>Payment Status:{{current_booking.payment_status}}</p>
                         {%else%}
                             <form method="POST" action="{{url_for('user_trek_info', trek_id=trek.id)}}">
                                 <button type="submit" class="btn btn-outline-success">

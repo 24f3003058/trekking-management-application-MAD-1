@@ -71,6 +71,7 @@ All bookings
                 <th>End Date</th>
                 <th>Booking Date</th>
                 <th>Status</th>
+                <th>Payment</th>
             </tr>
         </thead>
         <tbody>
@@ -83,12 +84,20 @@ All bookings
                 <td>{{b.trek.start_date.strftime('%d %b %Y') if b.trek.start_date else 'N/A'}} </td>
                 <td>{{b.trek.end_date.strftime('%d %b %Y') if b.trek.end_date else 'N/A'}}</td>
                 <td>{{b.booking_date.strftime('%d %b %Y') if b.booking_date else 'N/A'}}</td>
+                <td>{{b.status}}</td>
                 <td>
-                    <span >
-                        {{b.status}}
-                    </span>
-                </td>
+                    <form method="POST" action="{{url_for('update_payment_status',booking_id=b.id)}}">
+                        <select name="payment_status" class="form-select" style="width:100px;">
+                            {%for p in ['Pending','Paid','Refunded']%}
+                            <option value="{{p}}" {% if b.payment_status==p %} selected {%endif%}>
+                                 {{p}}
+                            </option>
+                            {%endfor%}
+                        </select>
+                        <button type="submit" class="btn btn-outline-secondary">Set</button>
 
+                    </form>
+                </td>
             </tr>
             {%endfor%}
         </tbody>

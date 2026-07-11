@@ -13,6 +13,7 @@ class User(db.Model):
     role=db.Column(db.String(50),nullable=False,default='user')
     created_date=db.Column(db.DateTime ,default=datetime.utcnow)
     is_blacklisted = db.Column(db.Boolean, default=False)
+    is_approved=db.Column(db.Boolean,default=True)
     bookings=db.relationship('Booking',backref='user' ,lazy=True ,foreign_keys='Booking.user_id')
     assigned_treks=db.relationship('Trek',backref='assigned_staff',lazy=True,foreign_keys='Trek.assigned_staff_id')
 
@@ -26,12 +27,11 @@ class Trek(db.Model):
     total_slots=db.Column(db.Integer,nullable=False)
     assigned_staff_id=db.Column(db.Integer,db.ForeignKey('users.id'),nullable=True)
     available_slots=db.Column(db.Integer,nullable=False)
-    status=db.Column(db.String(20),nullable=False,default="pending")
+    status=db.Column(db.String(20),nullable=False,default="Pending")
     start_date=db.Column(db.Date,nullable=False)
     end_date=db.Column(db.Date,nullable=False)
     description=db.Column(db.Text,nullable=True,default="No description added")
     price=db.Column(db.Float,nullable=False,default=0.0)
-    created_at=db.Column(db.DateTime)
     bookings=db.relationship('Booking',backref='trek',lazy=True,foreign_keys='Booking.trek_id')
 
 class Booking(db.Model):
@@ -41,6 +41,9 @@ class Booking(db.Model):
     trek_id=db.Column(db.Integer,db.ForeignKey('treks.id'),nullable=False)
     booking_date=db.Column(db.DateTime, default=datetime.utcnow)
     status=db.Column(db.String(50),nullable=False ,default='Booked')
+    payment_status=db.Column(db.String(20),nullable=False,default='Pending')
+
+
 
 with app.app_context():
     db.create_all()

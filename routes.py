@@ -28,15 +28,19 @@ def register_post():
     email=request.form.get('email')
     
     if not username or not password or not email or not full_name :
-        flash('Please enter required fields')  
+        flash('Please enter required fields','warning')  
+        return redirect(url_for('register'))
+    if len(password)<6:
+        flash("Password must be atleast 6 characters.",'warning')
         return redirect(url_for('register'))
     user=User.query.filter_by(username=username).first()
     if user:
-        flash('Please choose another username')
+        flash('Please choose another username',"warning")
         return redirect(url_for('register'))
     new_user=User(name=full_name,username=username,password=password,email=email)
     db.session.add(new_user)
     db.session.commit()
+    flash("You're registered successfully!",'success')
     return redirect(url_for('user_dashboard'))
 
 @app.route('/login',methods=['POST'])
@@ -44,27 +48,37 @@ def login_post():
     username=request.form.get('username')
     password=request.form.get('password')
     if not username or not password:
-        flash("Please enter required fields")
+        flash("Please enter required fields","Warning")
         return redirect(url_for('login'))
     user=User.query.filter_by(username=username).first()
 
     if not user:
-        flash("Username doesn't exits")
+        flash("Username doesn't exists",'danger')
         return redirect(url_for('login'))
     if user.password!=password:
-        flash("Invalid password")
+        flash("Invalid password",'danger')
+        return redirect(url_for('login'))
+
+    if user.role=='staff' and not user.is_approved:
+        flash('Wait for admin approval!','warning')
         return redirect(url_for('login'))
     session['user_id']=user.id
     session['role']=user.role
     session['name']=user.name
     if user.role=='admin':
+        flash('Successfully logged in as an admin!','success')
         return redirect(url_for('admin_dashboard'))
+    elif user.role=='staff':
+        flash("Successfully logged in as a staff!",'success')
+        return redirect(url_for('staff_dashboard'))
+    flash("Successfully logged in as a User!",'success')   
     return redirect(url_for('user_dashboard'))
 
 @app.route('/logout')
 def logout():
     if 'user_id' in session:
         session.clear()
+        flash("You logged out successfully!",'success')
         return redirect(url_for('index'))
 
 
@@ -76,10 +90,10 @@ def logout():
 @app.route('/admin/admin_dashboard')
 def admin_dashboard():
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
-        flash("Access denied! You can't access this web")
+        flash("Access denied! You can't access this web",'danger')
         return redirect(url_for('login'))
     total_treks_count=Trek.query.count()
     total_users_count=User.query.filter_by(role='user').count()
@@ -100,7 +114,7 @@ def admin_dashboard():
 @app.route('/admin/admin_manage_trek')
 def admin_manage_trek():
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','danger')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
         flash("Access denied! You can't access this web")
@@ -122,7 +136,7 @@ def admin_add_trek():
         flash('Please login to continue')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
-        flash("Access denied! You can't access this web")
+        flash("Access denied! You can't access this web",'danger')
         return redirect(url_for('login'))
 
     myusers=User.query.filter_by(role="staff",is_blacklisted=False).all()
@@ -145,7 +159,7 @@ def admin_add_trek():
         choosen_status=request.form.get('status',"Open")
         valid_statuses=['Pending',"Approved",'Open',"Completed","Closed"]
         if choosen_status not in valid_statuses:
-            choosen_status='Open'
+            choosen_status='Pending'
         trek= Trek(
             name= name,
             location= location,
@@ -163,6 +177,7 @@ def admin_add_trek():
         db.session.add(trek)
         db.session.commit()
         return redirect(url_for('admin_manage_trek'))
+
     return render_template('admin/admin_add_trek.html',myusers=myusers,trek=None)
 
 @app.route('/admin/admin_manage_trek/<int:trek_id>/edit',methods=['GET','POST'])
@@ -213,6 +228,7 @@ def admin_delete_trek(trek_id):
 @app.route('/admin/admin_manage_trek/<int:trek_id>/status',methods=['POST'])
 def admin_update_trek_status(trek_id):
     if 'user_id' not in session:
+        flash('Please login to continue')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
         return redirect(url_for('login'))
@@ -233,6 +249,7 @@ def admin_update_trek_status(trek_id):
 @app.route('/admin/manage_staff',methods=['GET'])
 def manage_staff():
     if 'user_id' not in session:
+        flash('Please login to continue')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
         flash("Access denied!")
@@ -244,10 +261,39 @@ def manage_staff():
     myusers=query.all()
     treks=Trek.query.filter(Trek.status.in_(['Pending',"Approved","Open"])).order_by(Trek.name).all()
     return render_template("admin/manage_staff.html",myusers=myusers, treks=treks,search=search)
+    
+    
+@app.route('/admin/manage_staff/pending')
+def pending_staff():
+    if 'user_id' not in session:
+        flash('Please login to continue')
+        return redirect(url_for('login'))
+    if session.get('role')!='admin':
+        flash("Access denied!")
+        return redirect(url_for('login'))
+    pending=User.query.filter_by(role='staff',is_approved=False).all()
+    return render_template('admin/pending_staff.html',pending=pending)
+
+@app.route('/admin/manage_staff/<int:staff_id>/approve',methods=['POST'])
+def admin_approve_staff(staff_id):
+    if 'user_id' not in session:
+        flash('Please login to continue')
+        return redirect(url_for('login'))
+    if session.get('role')!='admin':
+        flash("Access denied!")
+        return redirect(url_for('login'))
+    staff=User.query.filter_by(id=staff_id,role='staff').first()
+    if staff:
+        staff.is_approved=True
+        db.session.commit()
+        flash("you are successfully approved by admin!",'success')
+    return redirect(url_for('pending_staff'))
+
 
 @app.route('/admin/manage_staff/add_staff',methods=['GET','POST'])
 def add_staff():
     if 'user_id' not in session:
+        flash('Please login to continue')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
         flash("Access Denied!")
@@ -257,8 +303,11 @@ def add_staff():
         email=request.form.get('email')
         password=request.form.get('password')
         name=request.form.get('name')
-        
-        staff=User(username=username,email=email,name=name,role='staff',password=password)
+        if_existing_user=User.query.filter_by(username=username).first()
+        if if_existing_user:
+            flash('Username already exist, please choose another username.','warning')
+            return redirect(url_for('add_staff'))
+        staff=User(username=username,email=email,name=name,role='staff',password=password,is_approved=True)
         db.session.add(staff)
         db.session.commit()
         flash("Staff member added successfully!",'success')
@@ -268,8 +317,10 @@ def add_staff():
 @app.route('/admin/manage_staff/<int:staff_id>/delete',methods=['POST'])
 def admin_delete_staff(staff_id):
     if 'user_id' not in session:
+        flash('Please login to continue')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
+        flash("Access denied!")
         return redirect(url_for('login'))
     staff=User.query.filter_by(id=staff_id,role='staff').first()
     Trek.query.filter_by(assigned_staff_id=staff_id).update(
@@ -283,8 +334,10 @@ def admin_delete_staff(staff_id):
 @app.route('/admin/manage_staff/<int:staff_id>/assign',methods=['POST'])
 def admin_assign_staff(staff_id):
     if 'user_id' not in session:
+        flash('Please login to continue')
         return redirect('login')
     if session.get('role')!='admin':
+        flash("Access denied!")
         return redirect('login')
     staff=User.query.filter_by(id=staff_id,role='staff').first()
     trek_id=request.form.get('trek_id')
@@ -301,9 +354,10 @@ def admin_assign_staff(staff_id):
 @app.route('/admin/manage_staff/<int:staff_id>/blacklist', methods=['POST'])
 def admin_blacklist_staff(staff_id):
     if 'user_id' not in session:
+        flash('Please login to continue')
         return redirect('login')
     if session.get('role')!='admin':
-        flash('Access denied! ONly admin can see this page.')
+        flash('Access denied! Only admin can see this page.')
         return render_template('login.html')
     staff=User.query.filter_by(id=staff_id,role='staff').first()
     staff.is_blacklisted=not staff.is_blacklisted
@@ -315,8 +369,10 @@ def admin_blacklist_staff(staff_id):
 @app.route('/admin/search_user', methods=['GET'])
 def search_user():
     if 'user_id' not in session:
+        flash('Please login to continue')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
+        flash("Access denied!")
         return redirect(url_for('login'))
     search=request.args.get('search')
     query=User.query.filter_by(role='user')
@@ -330,8 +386,10 @@ def search_user():
 @app.route('/admin/search_users/<int:user_id>/blacklist', methods=['POST'])
 def admin_blacklist_user(user_id):
     if 'user_id' not in session:
+        flash('Please login to continue')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
+        flash("Access denied!")
         return redirect(url_for('login'))
     user=User.query.filter_by(id=user_id,role='user').first()
     user.is_blacklisted =not user.is_blacklisted
@@ -346,8 +404,10 @@ def admin_blacklist_user(user_id):
 @app.route('/admin/bookings')
 def admin_bookings():
     if 'user_id' not in session:
+        flash('Please login to continue')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
+        flash("Access denied!")
         return redirect(url_for('login'))
     status_filter=request.args.get('status')
     query=Booking.query
@@ -366,13 +426,14 @@ def user_dashboard():
         return redirect(url_for('login'))
     user_id=session['user_id']
     user=db.session.get(User,user_id)
+    your_bookings=Booking.query.filter_by(user_id=user_id,status='Booked').all()
     your_booked_treks=[b.trek for b in Booking.query.filter_by(user_id=user_id,status='Booked').all()]
     open_treks=Trek.query.filter_by(status='Open').all()
     booked_count=sum(1 for b in user.bookings if b.status=='Booked')
     completed_count=sum(1 for b in user.bookings if b.status=='Completed')
     cancelled_count=sum(1 for b in user.bookings if b.status=='Cancelled')
     total_open_trek=[b.trek for b in user.bookings if b.status=='Booked' and b.trek.status=='Open']
-    return render_template('user/user_dashboard.html',open_treks=open_treks,user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count,total_open_trek=total_open_trek,your_booked_treks=your_booked_treks)
+    return render_template('user/user_dashboard.html',open_treks=open_treks,user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count,total_open_trek=total_open_trek,your_bookings=your_bookings)
     
 
 @app.route('/user/user_dashboard/<int:trek_id>/book',methods=['POST'])
@@ -451,12 +512,21 @@ def user_trek_info(trek_id):
 
 @app.route('/user/view_new_trek')
 def view_new_trek():
+    if 'user_id' not in session:
+        flash('Please login to continue.')
+        return redirect(url_for('login'))
+    if session.get('role')!='user':
+        flash('Access denied only users can login to this website')
+        return redirect(url_for('login'))
     difficulty=request.args.get('difficulty')
     query=Trek.query.filter_by(status='Open')
+    location=request.args.get('location')
     if difficulty:
         query=query.filter_by(difficulty=difficulty)
+    if location:
+        query=query.filter(Trek.location.ilike(f'%{location}%'))
     treks=query.order_by(Trek.start_date).all()
-    return render_template('user/view_new_treks.html',treks=treks,difficulty=difficulty)
+    return render_template('user/view_new_treks.html',treks=treks,difficulty=difficulty,location=location)
 
 
 @app.route('/user/user_profile' ,methods=['GET','POST'])
@@ -504,6 +574,27 @@ def user_booking():
     bookings=(Booking.query.filter_by(user_id=user_id).all())
     return render_template('user/user_booking.html',bookings=bookings)
 
+@app.route('/user/user_bookings/<int:booking_id>/pay',methods=['POST'])
+def user_mark_paid(booking_id):
+    if 'user_id' not in session:
+        flash('Please login to continue.')
+        return redirect(url_for('login'))
+    if session.get('role')!='user':
+        flash("Only users can access this website!",'danger')
+        return redirect(url_for('login'))
+    booking=Booking.query.filter_by(id=booking_id,user_id=session['user_id']).first()
+    if not booking:
+        flash('Booking not found','danger')
+        return redirect(url_for('user_dashboard'))
+    if booking.status != 'Booked':
+        flash('You can only pay for active bookings','danger')
+        return redirect(url_for('user_dashboard'))
+    booking.payment_status='Paid'
+    db.session.commit()
+    flash('Payment marked as completed!','success')
+    return redirect(url_for('user_dashboard'))
+
+
 @app.route('/user/user_bookings/<int:booking_id>/cancel',methods=['POST'])
 def user_cancel_booking(booking_id):
     if 'user_id' not in session:
@@ -533,6 +624,29 @@ def user_cancel_booking(booking_id):
     return redirect(url_for('user_booking'))
 
 
+@app.route('/register/staff')
+def register_staff():
+    return render_template('register_staff.html')
+
+@app.route('/register/staff',methods=['POST'])
+def register_staff_post():
+    full_name=request.form.get('name')
+    username=request.form.get('username')
+    password=request.form.get('password')
+    email=request.form.get('email')
+    if not username or not email or not password or not full_name:
+        flash("Please fill required fields")
+        return redirect(url_for('register_staff'))
+    if len(password)<6:
+        flash('Please enter a password with min 6 characters.')
+        return redirect(url_for('register_staff'))
+    new_staff=User(
+        name=full_name, username=username,password=password,email=email,role='staff',is_approved=False)
+    db.session.add(new_staff)
+    db.session.commit()
+    flash("Successfully registered! Wait for admin approval.")
+    return redirect(url_for('login'))
+
 
 @app.route('/staff/staff_dashboard')
 def staff_dashboard():
@@ -561,7 +675,7 @@ def staff_trek_info(trek_id):
     open_bookings= [b for b in trek.bookings if b.status =='Booked']
     return render_template('staff/staff_trek_info.html',trek=trek ,open_bookings=open_bookings)
 
-@app.route('/staff/trek/<int:trek_id>/update',methods=['GET','POST'])
+@app.route('/staff/trek/<int:trek_id>/update',methods=['POST'])
 def staff_update_trek(trek_id):
     if 'user_id' not in session:
         flash('Please login to continue')
@@ -614,3 +728,57 @@ def staff_total_participants(trek_id):
     completed_count=sum(1 for b in active_bookings if b.status=='Completed')
     return render_template('staff/total_participants.html',trek=trek,active_bookings=active_bookings,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count)
 
+@app.route('/staff/profile',methods=['GET','POST'])
+def staff_profile():
+    if 'user_id' not in session:
+        flash('Please login to continue')
+        return redirect(url_for('login'))
+    if session.get('role')!='staff':
+        flash('Access denied! Please login to continue')
+        return redirect(url_for('login'))
+    staff=db.session.get(User,session['user_id'])
+    if request.method=='POST':
+        name=request.form.get('name')
+        username=request.form.get('username')
+        email=request.form.get('email')
+        new_password=request.form.get('new_password')
+        staff.name=name
+        staff.email=email
+        if new_password:
+            if len(new_password)<6:
+                flash("Please enter password of minimum 6 characters")
+                return render_template('staff/staff_profile.html',staff=staff)
+            staff.password=new_password
+        db.session.commit()
+        session['name']=staff.name
+        flash('Profile updated successfully!','success')
+    return render_template('staff/staff_profile.html',staff=staff)
+
+@app.route('/booking/<int:booking_id>/payment_status',methods=['POST'])
+def update_payment_status(booking_id):
+    if 'user_id' not in session:
+        flash('Please login to continue')
+        return redirect(url_for('login'))
+    role=session.get('role')
+    if role not in ('admin','staff'):
+        flash('Access denied!')
+        return redirect(url_for('login'))
+    booking=Booking.query.filter_by(id=booking_id).first()
+    if not booking:
+        flash('You have not book this trek' )
+        return redirect(url_for('login'))
+    if role=='staff' and booking.trek.assigned_staff_id!=session['user_id']:
+        flash('This trek is not assigned to you.','danger')
+        return redirect(url_for('staff_dashboard'))
+    new_payment_status=request.form.get('payment_status')
+    valid=['Pending','Paid','Refunded']
+    if new_payment_status not in valid:
+        flash("Invalid payment status.")
+    else:
+        booking.payment_status=new_payment_status
+        db.session.commit()
+        flash('Payment status updated.','success')
+
+    if role=='admin':
+        return redirect(url_for('admin_bookings'))
+    return redirect(url_for('staff_total_participants',trek_id=booking.trek_id))

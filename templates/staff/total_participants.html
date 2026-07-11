@@ -12,18 +12,29 @@ Participants Details
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="{{url_for('index')}}">Dashboard</a>
+            <a class="nav-link" href="{{url_for('staff_dashboard')}}">Dashboard</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
         </li>
     </ul>
 </div>
 {%endblock%}
 
 {%block content%}
+<div class="d-flex justify-content-start mt-1">
+    <a href="{{url_for('staff_dashboard')}}" class="btn btn-outline-success">
+        Back
+    </a>
+
+
+</div>
+
 <h2 class="mb-3 mt-3">Details of {{trek.name}}</h2>
 <div class="d-flex gap-3 mb-2 ">
-    <span>Booked Trek: {{booked_count}}</span>
-    <span>Cancelled Trek: {{cancelled_count}}</span>
-    <span>Completed trek: {{completed_count}}</span>
+    <span>Booked Count: {{booked_count}}</span>
+    <span>Cancelled Count: {{cancelled_count}}</span>
+    <span>Completed Count: {{completed_count}}</span>
 </div>
 
 <table class="table table-hover align-middle mb-3">
@@ -35,11 +46,11 @@ Participants Details
       <th scope="col">Email</th>
       <th scope="col">Booking Date</th>
       <th scope="col">Status</th>
-      
+      <th scope="col">Payment</th>
     </tr>
   </thead>
   <tbody>
-    {% for b in bookings%}
+    {% for b in active_bookings%}
     <tr>
         <td>{{b.id}}</td>
         <td>{{b.user.name}}</td>
@@ -47,12 +58,22 @@ Participants Details
         <td>{{b.user.email}}</td>
         <td>{{b.booking_date.strftime('%d %b %Y')}}</td>
         <td>{{b.status}}</td>
+        <td>
+            <form method="POST" action="{{url_for('update_payment_status',booking_id=b.id)}}">
+                <select name="payment_status" class="form-select" style="width:100px;">
+                    {%for p in ['Pending','Paid','Refunded']%}
+                    <option value="{{p}}" {%if b.payment_status==p %}selected {%endif%}>{{p}}</option>
+                    {%endfor%}
+                </select>
+                <button type="submit" class="btn btn-success">Set</button>
+            </form>
+        </td>
     </tr>
     {%endfor%}
   </tbody>
 </table>
 
-{% if not bookings%}
+{% if not active_bookings%}
     <div class="text-center mt-5">
         <p>No one registered for this trek.</p>
     </div>

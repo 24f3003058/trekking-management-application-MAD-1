@@ -124,21 +124,31 @@ User Dashboard
                 <th scope="col">Start date</th>
                 <th scope="col">End date</th>
                 <th scope="col">Status</th>
+                <th scope="col">Payment</th>
                 <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
-                {%for trek in your_booked_treks%}
+                {%for b in your_bookings%}
                     <tr>
-                        <th scope="row">{{trek.name}}</th>
+                        <th scope="row">{{b.trek.name}}</th>
                     
-                        <td>{{trek.location}}</td>
-                        <td>{{trek.duration}}</td>
-                        <td>{{trek.start_date}}</td>
-                        <td>{{trek.end_date}}</td>
-                        <td>{{trek.status}}</td>
+                        <td>{{b.trek.location}}</td>
+                        <td>{{b.trek.duration}}</td>
+                        <td>{{b.trek.start_date}}</td>
+                        <td>{{b.trek.end_date}}</td>
+                        <td>{{b.trek.status}}</td>
+                        <td>{{b.payment_status}}
+                            {%if b.payment_status == 'Pending' %}
+                            <form method="POST" action="{{url_for('user_mark_paid',booking_id=b.id)}}">
+                                <button type="submit" class="btn btn-outline-success">
+                                    Pay Now
+                                </button>
+                            </form>
+                            {%endif%}
+                        </td>
                         <td>
-                            <form method="POST" action="{{url_for('user_trek_info',trek_id=trek.id)}}">
+                            <form method="POST" action="{{url_for('user_trek_info',trek_id=b.trek.id)}}">
                                 <button type="submit" class="btn btn-outline-primary">View Details</button>
                             </form>
                         </td>

@@ -8,17 +8,28 @@ Trek Details
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-        <a class="nav-link" href="{{url_for('index')}}"><b>TrekMate</b></a>
+            <a class="nav-link" href="{{url_for('index')}}"><b>TrekMate</b></a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="{{url_for('index')}}">Dashboard</a>
+            <a class="nav-link" href="{{url_for('staff_dashboard')}}">Dashboard</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
         </li>
     </ul>
 </div>
 {%endblock%}
 {%block content%}
-<div class="d-flex  mb-4">
+
+<div class="d-flex justify-content-start">
+        <a href="{{url_for('staff_dashboard')}}" class="btn btn-outline-success">
+           Back
+        </a>
+    
+        
+    </div>
+<div class="d-flex justify-content-center mb-4">
     <h2>{{trek.name}}</h2> 
 </div>
 
@@ -80,11 +91,5 @@ Trek Details
     </div>
 </div>
 
-<div>
-  <h2>Total Participants</h2>
-  <div>
-
-  </div>
-</div>
 
 {%endblock%}
