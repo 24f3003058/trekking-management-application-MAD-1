@@ -17,17 +17,25 @@ Staff Dashboard
             <li class="nav-item">
                 <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
             </li>
+            
+        </ul>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                <span class="navbar-text">
+                    {{session.get('name')}} <span >({{session.get('role')|capitalize}})</span>
+                </span>
+            </li>
         </ul>
     </div>
 {%endblock%}
 {%block content%}
 <h2 class="mb-5 mt-3">Staff Dashboard</h2>
 
-<div class="row g-4"> 
+<div class="row row-cols-1 row-cols-md-2 g-4"> 
     {%for trek in assigned_treks %}
-    <div class="row">
-        <div class="col-sm-6 mb-3 mb-sm-0">
-            <div class="card">
+    <div class="col">
+        <div class="card trek-card">
+            
             <div class="card-body">
                 <h3 class="card-title">Trek Name: {{trek.name}} </h3>
                 <span>Trek Status: {{trek.status}}</span>
@@ -45,7 +53,7 @@ Staff Dashboard
 
                 </div>
                 
-            </div>
+           
             </div>
         </div>
         

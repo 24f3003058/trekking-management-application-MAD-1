@@ -9,7 +9,7 @@ def index():
     if 'user_id' in session:
         return render_template('index.html')
     else:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return render_template('index.html')
 
 @app.route('/login')
@@ -48,7 +48,7 @@ def login_post():
     username=request.form.get('username')
     password=request.form.get('password')
     if not username or not password:
-        flash("Please enter required fields","Warning")
+        flash("Please enter required fields","warning")
         return redirect(url_for('login'))
     user=User.query.filter_by(username=username).first()
 
@@ -79,7 +79,7 @@ def logout():
     if 'user_id' in session:
         session.clear()
         flash("You logged out successfully!",'success')
-        return redirect(url_for('index'))
+    return redirect(url_for('index'))
 
 
 
@@ -117,7 +117,7 @@ def admin_manage_trek():
         flash('Please login to continue','danger')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
-        flash("Access denied! You can't access this web")
+        flash("Access denied! You can't access this web",'danger')
         return redirect(url_for('login'))
     status_filter=request.args.get('status')
     search=request.args.get('search')
@@ -133,7 +133,7 @@ def admin_manage_trek():
 @app.route('/admin/admin_manage_trek/add',methods=['GET','POST'])
 def admin_add_trek():
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
         flash("Access denied! You can't access this web",'danger')
@@ -153,10 +153,10 @@ def admin_add_trek():
         assigned_staff_id=request.form.get('assigned_staff_id')
         
         if start_date>=end_date:
-            flash("Enter correct end date,it should be after start date!")
-            return render_template('admin/admin_add_trek',myusers=myusers,trek=None)
+            flash("Enter correct end date,it should be after start date!",'warning')
+            return render_template('admin/admin_add_trek.html',myusers=myusers,trek=None)
         slots= int(total_slots)
-        choosen_status=request.form.get('status',"Open")
+        choosen_status=request.form.get('status',"Pending")
         valid_statuses=['Pending',"Approved",'Open',"Completed","Closed"]
         if choosen_status not in valid_statuses:
             choosen_status='Pending'
@@ -183,10 +183,10 @@ def admin_add_trek():
 @app.route('/admin/admin_manage_trek/<int:trek_id>/edit',methods=['GET','POST'])
 def admin_edit_trek(trek_id):
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
-        flash("Access denied! You can't access this web")
+        flash("Access denied! You can't access this web",'danger')
         return redirect(url_for('login'))
     trek=Trek.query.filter_by(id=trek_id).first()
     myusers=User.query.filter_by(role="staff",is_blacklisted=False).all()
@@ -214,10 +214,10 @@ def admin_edit_trek(trek_id):
 @app.route('/admin/admin_manage_trek/<int:trek_id>/delete',methods=['POST'])
 def admin_delete_trek(trek_id):
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
-        flash("Access denied! You can't access this webpage")
+        flash("Access denied! You can't access this webpage",'danger')
         return redirect(url_for('login'))
     trek=Trek.query.filter_by(id=trek_id).first()
     Booking.query.filter_by(trek_id=trek_id).delete(synchronize_session=False)
@@ -228,9 +228,10 @@ def admin_delete_trek(trek_id):
 @app.route('/admin/admin_manage_trek/<int:trek_id>/status',methods=['POST'])
 def admin_update_trek_status(trek_id):
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
+        flash('Access denied!','danger')
         return redirect(url_for('login'))
     trek=Trek.query.filter_by(id=trek_id).first()
     new_status=request.form.get('status')
@@ -249,10 +250,10 @@ def admin_update_trek_status(trek_id):
 @app.route('/admin/manage_staff',methods=['GET'])
 def manage_staff():
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
-        flash("Access denied!")
+        flash("Access denied!",'danger')
         return redirect(url_for('login'))
     search=request.args.get('search')
     query=User.query.filter_by(role='staff')
@@ -266,10 +267,10 @@ def manage_staff():
 @app.route('/admin/manage_staff/pending')
 def pending_staff():
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
-        flash("Access denied!")
+        flash("Access denied!",'danger')
         return redirect(url_for('login'))
     pending=User.query.filter_by(role='staff',is_approved=False).all()
     return render_template('admin/pending_staff.html',pending=pending)
@@ -277,10 +278,10 @@ def pending_staff():
 @app.route('/admin/manage_staff/<int:staff_id>/approve',methods=['POST'])
 def admin_approve_staff(staff_id):
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
-        flash("Access denied!")
+        flash("Access denied!",'danger')
         return redirect(url_for('login'))
     staff=User.query.filter_by(id=staff_id,role='staff').first()
     if staff:
@@ -293,10 +294,10 @@ def admin_approve_staff(staff_id):
 @app.route('/admin/manage_staff/add_staff',methods=['GET','POST'])
 def add_staff():
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
-        flash("Access Denied!")
+        flash("Access Denied!",'danger')
         return redirect(url_for('login'))
     if request.method=='POST':
         username=request.form.get('username')
@@ -317,10 +318,10 @@ def add_staff():
 @app.route('/admin/manage_staff/<int:staff_id>/delete',methods=['POST'])
 def admin_delete_staff(staff_id):
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
-        flash("Access denied!")
+        flash("Access denied!",'danger')
         return redirect(url_for('login'))
     staff=User.query.filter_by(id=staff_id,role='staff').first()
     Trek.query.filter_by(assigned_staff_id=staff_id).update(
@@ -334,10 +335,10 @@ def admin_delete_staff(staff_id):
 @app.route('/admin/manage_staff/<int:staff_id>/assign',methods=['POST'])
 def admin_assign_staff(staff_id):
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect('login')
     if session.get('role')!='admin':
-        flash("Access denied!")
+        flash("Access denied!",'danger')
         return redirect('login')
     staff=User.query.filter_by(id=staff_id,role='staff').first()
     trek_id=request.form.get('trek_id')
@@ -354,25 +355,25 @@ def admin_assign_staff(staff_id):
 @app.route('/admin/manage_staff/<int:staff_id>/blacklist', methods=['POST'])
 def admin_blacklist_staff(staff_id):
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect('login')
     if session.get('role')!='admin':
-        flash('Access denied! Only admin can see this page.')
+        flash('Access denied! Only admin can see this page.','danger')
         return render_template('login.html')
     staff=User.query.filter_by(id=staff_id,role='staff').first()
     staff.is_blacklisted=not staff.is_blacklisted
     db.session.commit()
     status='blacklisted' if staff.is_blacklisted else 'activated'
-    flash('staff member added successfully!','success')
+    flash(f'staff member {status} !','success')
     return redirect(url_for('manage_staff'))
 
 @app.route('/admin/search_user', methods=['GET'])
 def search_user():
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
-        flash("Access denied!")
+        flash("Access denied!",'danger')
         return redirect(url_for('login'))
     search=request.args.get('search')
     query=User.query.filter_by(role='user')
@@ -386,10 +387,10 @@ def search_user():
 @app.route('/admin/search_users/<int:user_id>/blacklist', methods=['POST'])
 def admin_blacklist_user(user_id):
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
-        flash("Access denied!")
+        flash("Access denied!",'danger')
         return redirect(url_for('login'))
     user=User.query.filter_by(id=user_id,role='user').first()
     user.is_blacklisted =not user.is_blacklisted
@@ -404,10 +405,10 @@ def admin_blacklist_user(user_id):
 @app.route('/admin/bookings')
 def admin_bookings():
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='admin':
-        flash("Access denied!")
+        flash("Access denied!",'danger')
         return redirect(url_for('login'))
     status_filter=request.args.get('status')
     query=Booking.query
@@ -419,10 +420,10 @@ def admin_bookings():
 @app.route('/user/user_dashboard')
 def user_dashboard():
     if 'user_id' not in session:
-        flash('Please login to continue.')
+        flash('Please login to continue.','warning')
         return redirect(url_for('login'))
     if session.get('role')!='user':
-        flash('Access denied only users can login to this website')
+        flash('Access denied only users can login to this website','danger')
         return redirect(url_for('login'))
     user_id=session['user_id']
     user=db.session.get(User,user_id)
@@ -432,22 +433,22 @@ def user_dashboard():
     booked_count=sum(1 for b in user.bookings if b.status=='Booked')
     completed_count=sum(1 for b in user.bookings if b.status=='Completed')
     cancelled_count=sum(1 for b in user.bookings if b.status=='Cancelled')
-    total_open_trek=[b.trek for b in user.bookings if b.status=='Booked' and b.trek.status=='Open']
+    total_open_trek=[b.trek for b in user.bookings if b.trek.status=='Open']
     return render_template('user/user_dashboard.html',open_treks=open_treks,user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count,total_open_trek=total_open_trek,your_bookings=your_bookings)
     
 
 @app.route('/user/user_dashboard/<int:trek_id>/book',methods=['POST'])
 def user_booked_trek(trek_id):
     if 'user_id' not in session:
-        flash('Please login to continue.')
+        flash('Please login to continue.','warning')
         return redirect(url_for('login'))
     if session.get('role')!='user':
-        flash('Access denied only users can login to this website')
+        flash('Access denied only users can login to this website','danger')
         return redirect(url_for('login'))
     user_id=session['user_id']
     user=db.session.get(User,user_id)
     if user.is_blacklisted:
-        flash("Your account is blocked by admin. You can't book any trek.")
+        flash("Your account is blocked by admin. You can't book any trek.",'danger')
         return redirect(url_for('user_dashboard'))
 
     trek=Trek.query.filter_by(id=trek_id).first()
@@ -463,7 +464,7 @@ def user_booked_trek(trek_id):
     already_booked=Booking.query.filter_by(user_id=user_id,trek_id=trek_id,status='Booked').first()
     if already_booked:
         flash('this trek is already booked by you!','danger')
-        redirect(url_for('user_dashboard'))
+        return redirect(url_for('user_dashboard'))
     new_booking=Booking(user_id=user_id,trek_id=trek_id,status='Booked')
     trek.available_slots -= 1
     db.session.add(new_booking)
@@ -474,10 +475,10 @@ def user_booked_trek(trek_id):
 @app.route('/user/user_dashboard/<int:trek_id>/cancel', methods=['POST'])
 def user_trek_cancel(trek_id):
     if 'user_id' not in session:
-        flash('Please login to continue.')
+        flash('Please login to continue.','warning')
         return redirect(url_for('login'))
     if session.get('role')!='user':
-        flash('Access denied only users can login to this website')
+        flash('Access denied only users can login to this website','danger')
         return redirect(url_for('login'))
     user_id=session['user_id']
     trek=Trek.query.filter_by(id=trek_id).first()
@@ -498,10 +499,10 @@ def user_trek_cancel(trek_id):
 @app.route('/user/user_dashboard/<int:trek_id>/trek_detail', methods=['POST'])
 def user_trek_info(trek_id):
     if 'user_id' not in session:
-        flash('Please login to continue.')
+        flash('Please login to continue.','danger')
         return redirect(url_for('login'))
     if session.get('role')!='user':
-        flash('Access denied only users can login to this website')
+        flash('Access denied only users can login to this website','warning')
         return redirect(url_for('login'))
     user_id=session['user_id']
     user=db.session.get(User,user_id)
@@ -513,10 +514,10 @@ def user_trek_info(trek_id):
 @app.route('/user/view_new_trek')
 def view_new_trek():
     if 'user_id' not in session:
-        flash('Please login to continue.')
+        flash('Please login to continue.','warning')
         return redirect(url_for('login'))
     if session.get('role')!='user':
-        flash('Access denied only users can login to this website')
+        flash('Access denied only users can login to this website','danger')
         return redirect(url_for('login'))
     difficulty=request.args.get('difficulty')
     query=Trek.query.filter_by(status='Open')
@@ -532,10 +533,10 @@ def view_new_trek():
 @app.route('/user/user_profile' ,methods=['GET','POST'])
 def user_profile():
     if 'user_id' not in session:
-        flash('Please login to continue.')
+        flash('Please login to continue.','warning')
         return redirect(url_for('login'))
     if session.get('role')!='user':
-        flash('Access denied only users can login to this website')
+        flash('Access denied only users can login to this website','danger')
         return redirect(url_for('login'))
     user=db.session.get(User,session['user_id'])
     if request.method=='POST':
@@ -555,7 +556,7 @@ def user_profile():
             user.password=new_password
         db.session.commit()
         session['name']=user.name
-        flash('Profile has been updated successfully!')
+        flash('Profile has been updated successfully!','success')
         return redirect(url_for('user_profile'))
     booked_count=sum(1 for b in user.bookings if b.status=='Booked')
     completed_count =sum(1 for b in user.bookings if b.status=='Completed')  
@@ -577,7 +578,7 @@ def user_booking():
 @app.route('/user/user_bookings/<int:booking_id>/pay',methods=['POST'])
 def user_mark_paid(booking_id):
     if 'user_id' not in session:
-        flash('Please login to continue.')
+        flash('Please login to continue.','warning')
         return redirect(url_for('login'))
     if session.get('role')!='user':
         flash("Only users can access this website!",'danger')
@@ -614,13 +615,13 @@ def user_cancel_booking(booking_id):
     booking.status='Cancelled'
     db.session.commit()
     """calculating slots again"""
-    trek=Booking.trek
+    trek=booking.trek
     actual_booked=Booking.query.filter_by(trek_id=trek.id, status='Booked').count()
     correct=max(0,trek.total_slots - actual_booked)
     if trek.available_slots!=correct:
         trek.available_slots=correct
         db.session.commit()
-        flash("Booking cancelled!",'success')
+    flash("Booking cancelled!",'success')
     return redirect(url_for('user_booking'))
 
 
@@ -640,8 +641,11 @@ def register_staff_post():
     if len(password)<6:
         flash('Please enter a password with min 6 characters.')
         return redirect(url_for('register_staff'))
-    new_staff=User(
-        name=full_name, username=username,password=password,email=email,role='staff',is_approved=False)
+    existing = User.query.filter_by(username=username).first()
+    if existing:
+        flash('Username already taken, please choose another.', 'warning')
+        return redirect(url_for('register_staff'))
+    new_staff=User(name=full_name, username=username,password=password,email=email,role='staff',is_approved=False)
     db.session.add(new_staff)
     db.session.commit()
     flash("Successfully registered! Wait for admin approval.")
@@ -651,10 +655,10 @@ def register_staff_post():
 @app.route('/staff/staff_dashboard')
 def staff_dashboard():
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='staff':
-        flash('Access denied! Please login to continue')
+        flash('Access denied! Please login to continue','danger')
         return redirect(url_for('login'))
     user_id=session['user_id']
     assigned_treks=Trek.query.filter_by(assigned_staff_id=user_id).all()
@@ -663,10 +667,10 @@ def staff_dashboard():
 @app.route('/staff/trek/<int:trek_id>')
 def staff_trek_info(trek_id):
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='staff':
-        flash('Access denied! Please login to continue')
+        flash('Access denied! Please login to continue','danger')
         return redirect(url_for('login'))
     trek=Trek.query.filter_by(id=trek_id).first()
     if trek.assigned_staff_id!=session['user_id']:
@@ -678,10 +682,10 @@ def staff_trek_info(trek_id):
 @app.route('/staff/trek/<int:trek_id>/update',methods=['POST'])
 def staff_update_trek(trek_id):
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='staff':
-        flash('Access denied! Please login to continue')
+        flash('Access denied! Please login to continue','danger')
         return redirect(url_for('login'))
     trek=Trek.query.filter_by(id=trek_id).first()
     if trek.assigned_staff_id != session['user_id']:
@@ -701,6 +705,9 @@ def staff_update_trek(trek_id):
             return redirect(url_for('staff_update_trek',trek_id=trek.id))
     
     if new_status in ("Open","Closed" ,"Completed"):
+        if trek.status=='Pending' and new_status=='Open':
+            flash('This trek is not approved by admin','danger')
+            return redirect(url_for('staff_trek_info',trek_id=trek.id))
         trek.status=new_status
         if new_status=='Completed':
             for b in trek.bookings:
@@ -713,10 +720,10 @@ def staff_update_trek(trek_id):
 @app.route('/staff/trek/<int:trek_id>/total_participants')
 def staff_total_participants(trek_id):
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='staff':
-        flash('Access denied! Please login to continue')
+        flash('Access denied! Please login to continue','danger')
         return redirect(url_for('login'))
     trek=Trek.query.filter_by(id=trek_id).first()
     if trek.assigned_staff_id != session['user_id']:
@@ -731,10 +738,10 @@ def staff_total_participants(trek_id):
 @app.route('/staff/profile',methods=['GET','POST'])
 def staff_profile():
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     if session.get('role')!='staff':
-        flash('Access denied! Please login to continue')
+        flash('Access denied! Please login to continue','danger')
         return redirect(url_for('login'))
     staff=db.session.get(User,session['user_id'])
     if request.method=='POST':
@@ -746,7 +753,7 @@ def staff_profile():
         staff.email=email
         if new_password:
             if len(new_password)<6:
-                flash("Please enter password of minimum 6 characters")
+                flash("Please enter password of minimum 6 characters",'warning')
                 return render_template('staff/staff_profile.html',staff=staff)
             staff.password=new_password
         db.session.commit()
@@ -757,15 +764,15 @@ def staff_profile():
 @app.route('/booking/<int:booking_id>/payment_status',methods=['POST'])
 def update_payment_status(booking_id):
     if 'user_id' not in session:
-        flash('Please login to continue')
+        flash('Please login to continue','warning')
         return redirect(url_for('login'))
     role=session.get('role')
     if role not in ('admin','staff'):
-        flash('Access denied!')
+        flash('Access denied!','danger')
         return redirect(url_for('login'))
     booking=Booking.query.filter_by(id=booking_id).first()
     if not booking:
-        flash('You have not book this trek' )
+        flash('You have not book this trek yet.','warning' )
         return redirect(url_for('login'))
     if role=='staff' and booking.trek.assigned_staff_id!=session['user_id']:
         flash('This trek is not assigned to you.','danger')
@@ -773,12 +780,11 @@ def update_payment_status(booking_id):
     new_payment_status=request.form.get('payment_status')
     valid=['Pending','Paid','Refunded']
     if new_payment_status not in valid:
-        flash("Invalid payment status.")
+        flash("Invalid payment status.",'warning')
     else:
         booking.payment_status=new_payment_status
         db.session.commit()
         flash('Payment status updated.','success')
-
     if role=='admin':
         return redirect(url_for('admin_bookings'))
     return redirect(url_for('staff_total_participants',trek_id=booking.trek_id))

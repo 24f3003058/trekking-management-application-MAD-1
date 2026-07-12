@@ -5,7 +5,7 @@
 {%endblock%}
 
 {% block navbar%}
-   <div>
+
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
@@ -24,15 +24,24 @@
         <li class="nav-item">
           <a class="nav-link" href="{{url_for('admin_bookings')}}">Bookings</a>
         </li>
+        <li>
             <a class="nav-link" href="{{url_for('pending_staff')}}">Pending Staff</a>
+        </li>
         <li class="nav-item">
           <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
         </li>
       </ul>
-      
-    </div>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                <span class="navbar-text">
+                    {{session.get('name')}} <span >({{session.get('role')|capitalize}})</span>
+                </span>
+            </li>
+        </ul>
+    
   </div>
-</div>
+  
+
 {%endblock%}
 
 {% block content%}
@@ -104,12 +113,6 @@
     </div>
 </div>
 
-
-  
-  
-
 {%endblock%}
-{%block style%}
-    <link href="{{url_for('static',filename='admin_dashboard.css')}}" rel="stylesheet">
-{%endblock%}
+
 

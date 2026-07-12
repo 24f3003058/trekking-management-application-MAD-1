@@ -4,7 +4,7 @@ Add Trek
 {%endblock%}
 
 {% block navbar%}
-    <div>
+    
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
@@ -29,8 +29,16 @@ Add Trek
              <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
             </li>
         </ul>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                <span class="navbar-text">
+                    {{session.get('name')}} <span >({{session.get('role')|capitalize}})</span>
+                </span>
+            </li>
+        </ul>
         
-  </div>
+        
+ 
 </div>
 {%endblock%}
 
@@ -81,13 +89,12 @@ Add Trek
         </div>
         <div class="col-md-6 mt-2">
             <label for="assigned_staff_id" class="form-label">Assign staff:</label>
-            <select class="form-select" id="assigned_staff_id" name="assigned_staff_id"  required>Unassigned
-                <option value="" {%if not trek%} selected{%endif%} disabled>Unassigned</option>
+            <select class="form-select" id="assigned_staff_id" name="assigned_staff_id">
+                <option value="" {%if not trek or not trek.assigned_staff_id%} selected {%endif%}>Unassigned</option>
                 {%for i in myusers%}
                 <option value="{{i.id}}"
                     {%if trek and trek.assigned_staff_id==i.id%}selected{% endif %}>
                     {{i.name}}
-
                 </option>
                 {%endfor%}
             </select>
@@ -101,14 +108,4 @@ Add Trek
       </form>   
     </div>
 </div>
-{%endblock%}
-{% block style%}
-<style>
-    .title{
-        color:green;
-        margin-top: 8px;
-    } 
-    
-</style>
-
 {%endblock%}
