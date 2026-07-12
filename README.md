@@ -74,7 +74,7 @@ TrekMate/
 
 ### 1. Clone the repository
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/24f3003058/trekking-management-application-MAD-1.git
 cd TrekMate
 ```
 
