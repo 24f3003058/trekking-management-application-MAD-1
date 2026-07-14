@@ -9,7 +9,6 @@ def index():
     if 'user_id' in session:
         return render_template('index.html')
     else:
-        flash('Please login to continue','warning')
         return render_template('index.html')
 
 @app.route('/login')
@@ -433,7 +432,7 @@ def user_dashboard():
     booked_count=sum(1 for b in user.bookings if b.status=='Booked')
     completed_count=sum(1 for b in user.bookings if b.status=='Completed')
     cancelled_count=sum(1 for b in user.bookings if b.status=='Cancelled')
-    total_open_trek=[b.trek for b in user.bookings if b.trek.status=='Open']
+    total_open_trek=len(open_treks)
     return render_template('user/user_dashboard.html',open_treks=open_treks,user=user,booked_count=booked_count,cancelled_count=cancelled_count,completed_count=completed_count,total_open_trek=total_open_trek,your_bookings=your_bookings)
     
 
@@ -636,10 +635,10 @@ def register_staff_post():
     password=request.form.get('password')
     email=request.form.get('email')
     if not username or not email or not password or not full_name:
-        flash("Please fill required fields")
+        flash("Please fill required fields",'warning')
         return redirect(url_for('register_staff'))
     if len(password)<6:
-        flash('Please enter a password with min 6 characters.')
+        flash('Please enter a password with min 6 characters.','warning')
         return redirect(url_for('register_staff'))
     existing = User.query.filter_by(username=username).first()
     if existing:
@@ -648,7 +647,7 @@ def register_staff_post():
     new_staff=User(name=full_name, username=username,password=password,email=email,role='staff',is_approved=False)
     db.session.add(new_staff)
     db.session.commit()
-    flash("Successfully registered! Wait for admin approval.")
+    flash("Successfully registered! Wait for admin approval.",'warning')
     return redirect(url_for('login'))
 
 

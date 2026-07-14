@@ -2,39 +2,80 @@
 {% block title %}
 Staff Registeration
 {%endblock%}
+{%block navbar%}
+<a class="navbar-brand" href="#">TrekMate</a>    
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-link active" aria-current="page" href="{{url_for('index')}}">Dashboard</a>
+            
+                <a class="nav-link" href="{{url_for('register')}}">User Registeration</a>
+            </div>
+        </div>
+
+{%endblock%}
 
 {% block content%}
-<div class="d-flex justify-content-center mt-5">
-    <div class="card p-4" style="width: 28rem;">
-        <h2>Staff Registeration</h2>
-        <form method="POST" action="{{url_for('register_staff_post')}}">
-            <div class="mb-3">
-                <label class="form-label">Full Name</label>
-                <input class="form-control" type="text" name="name" required >
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Staff Registeration</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
 
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Username</label>
-                <input class="form-control" type="text" name="username" required >
-
-            </div><div class="mb-3">
-                <label class="form-label">Email</label>
-                <input class="form-control" type="text" name="email" required >
-
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input class="form-control" type="password" name="password" minlength="6" required >
-
-            </div>
-            <button type="submit" class="btn btn-success">Register</button>
-            <p class="mt-3 text-center">
-                <a href="{{url_for('login')}}">Click here to login</a>
-            </p>
-        </form>
-
+            <form method="POST" >
+                <div>
+                <div class="mb-3 mt-4">
+                    <label for="name" class="form-label">Full Name:
+                        <input type="text" class="form-control" name="name" placeholder="Full Name" required/>
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username:
+                        <input type="text" name="username" id="username" class="form-control" required placeholder="Username">
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <label for="inputEmail4" class="form-label">Email:</label>
+                    <input type="email" name="email" class="form-control" id="inputEmail4" required placeholder="abc@gmail.com">
+                </div>
+                <div class="mb-3">
+                    <label for="inputPassword4" class="form-label">Password:</label>
+                    <input type="password" name="password" class="form-control" id="inputPassword4" required>
+                </div>
+                
+                <div class="mt-3 mb-5">
+                    <input type="submit" value="Create Account" class="btn btn-success" required >
+                </div>
+                <p>Already have an account? <a href="{{url_for('login')}}">login</a></p>
+            </form>
+        </div>
     </div>
-
-
 </div>
+
+
+
+
+{%endblock%}
+{% block style%}
+<style>
+    body{
+        margin: 0px;
+        padding:0px;
+    }
+    nav{
+        padding:0;
+        margin:0;
+        width: 100%;
+    }
+    form{
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        background-color: aliceblue;
+        align-items: center;
+        padding:5px;
+    }
+    h2{
+        margin-top:45px;
+        text-align: center;
+    }
+</style>
 {%endblock%}

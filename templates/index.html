@@ -14,18 +14,14 @@ Home
         <li class="nav-item">
           <a class="nav-link active" href="{{url_for('index')}}">Dashboard</a>
         </li>
+        
         <li class="nav-item">
-          <a class="nav-link" href="#">Treks</a>
+          <a class="nav-link" href="{{url_for('register_staff')}}">Staff Registeration</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Staff</a>
+          <a class="nav-link" href="{{url_for('register')}}">User Registeration</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Users</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Bookings</a>
-        </li>
+        
       </ul>
       
     </div>
@@ -45,7 +41,7 @@ Home
 </div> 
 <div class="mt-4 mb-3 text-center">
     <span><a type="submit" href="{{url_for('login')}}" class="md-2 btn btn-success">Login</a></span>
-    <span><a type="submit" href="{{url_for('register')}}" class="md-2 btn btn-success">Get Started</a></span>
+    
     
 </div>
 

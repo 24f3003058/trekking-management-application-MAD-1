@@ -51,7 +51,7 @@
     <h2>Edit Profile</h2>
     <div class="card">
         <div class="card-body">
-            <form method="POST" action="url_for{{'staff_profile'}}">
+            <form method="POST" action="{{url_for('staff_profile')}}">
                 <div>
                     <label class="form-label" for="name">Full Name</label>
                     <input class="form-control" name="name" type="text" id="name" value="{{staff.name}}" required>
@@ -62,7 +62,7 @@
                 </div>
                 <div>
                     <label class="form-label" for="new_password">New Password</label>
-                    <input class="form-control" name="new_password" type="password" id="new_password"  required>
+                    <input class="form-control" name="new_password" type="password" id="new_password">
                 </div>
                 <div>
                     <button type="submit" class="btn btn-success">Save</button>

@@ -15,6 +15,9 @@ Staff Dashboard
                 <a class="nav-link" href="{{url_for('staff_dashboard')}}">Dashboard</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="{{url_for('staff_profile')}}">Profile</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
             </li>
             
@@ -46,7 +49,7 @@ Staff Dashboard
                 <p>Duration: {{trek.duration}} days</p>
                 <p>Difficulty: {{trek.difficulty}}</p>
                 <span>Booked Count: {{trek.booked_count}} </span>
-                <span>Available Slots: {{trek.available_slots}}
+                <span>Available Slots: {{trek.available_slots}}</span>
                 <div class="card-footer d-flex gap-2">
                     <a href="{{url_for('staff_trek_info',trek_id=trek.id)}}" class="btn btn-primary">Manage</a>
                     <a href="{{url_for('staff_total_participants',trek_id=trek.id)}}" class="btn btn-primary">Total Participants</a>
